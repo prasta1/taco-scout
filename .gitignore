@@ -1,0 +1,27 @@
+# Secrets
+Config/Secrets.xcconfig
+
+# Claude local settings
+.claude/
+
+# Xcode
+*.xcuserstate
+xcuserdata/
+*.xcworkspace/xcuserdata/
+*.xcworkspace/xcshareddata/
+DerivedData/
+*.pbxuser
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+
+# Build
+build/
+Products/
+
+# macOS
+.DS_Store
+
+# Swift Package Manager
+.build/
+*.resolved
