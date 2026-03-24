@@ -258,6 +258,7 @@ struct PersistentBottomSheet: View {
     let userLocation: CLLocationCoordinate2D
     @Binding var selectedTaco: TacoLocation?
     @ObservedObject var favoritesManager: FavoritesManager
+    @ObservedObject var adManager: AdManager
     @Binding var currentDetent: SheetDetent
     @Binding var filter: FilterState
     @Binding var triggerSearchFocus: Bool
@@ -395,7 +396,7 @@ struct PersistentBottomSheet: View {
                 } else {
                     ScrollView {
                         LazyVStack(spacing: 0) {
-                            ForEach(listTacos) { taco in
+                            ForEach(Array(listTacos.enumerated()), id: \.element.id) { index, taco in
                                 TacoListItemView(
                                     taco: taco,
                                     userLocation: userLocation,
@@ -423,6 +424,14 @@ struct PersistentBottomSheet: View {
                                     Divider()
                                         .padding(.leading, 88)
                                         .padding(.trailing, 16)
+                                }
+
+                                // Insert native ad after every 5th item
+                                if (index + 1) % 5 == 0, let ad = adManager.loadedAds[safe: (index + 1) / 5 - 1] {
+                                    AdNativeView(nativeAd: ad)
+                                        .frame(height: 120)
+                                        .padding(.horizontal, 16)
+                                        .padding(.vertical, 8)
                                 }
                             }
                         }
@@ -498,7 +507,7 @@ struct PersistentBottomSheet: View {
             } else {
                 ScrollView {
                     LazyVStack(spacing: 0) {
-                        ForEach(listTacos) { taco in
+                        ForEach(Array(listTacos.enumerated()), id: \.element.id) { index, taco in
                             TacoListItemView(
                                 taco: taco,
                                 userLocation: userLocation,
@@ -529,6 +538,14 @@ struct PersistentBottomSheet: View {
                             if taco.id != listTacos.last?.id {
                                 Divider()
                                     .padding(.leading, 92)
+                            }
+
+                            // Insert native ad after every 5th item
+                            if (index + 1) % 5 == 0, let ad = adManager.loadedAds[safe: (index + 1) / 5 - 1] {
+                                AdNativeView(nativeAd: ad)
+                                    .frame(height: 120)
+                                    .padding(.horizontal, 20)
+                                    .padding(.vertical, 8)
                             }
                         }
                     }

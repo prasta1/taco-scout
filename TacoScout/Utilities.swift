@@ -109,6 +109,15 @@ extension Color {
     static let iconGrey = Color(red: 0.2, green: 0.2, blue: 0.2, opacity: 0.7)
 }
 
+// MARK: - Collection Safe Subscript
+
+extension Collection {
+    /// Returns the element at the specified index if it exists, otherwise nil.
+    subscript(safe index: Index) -> Element? {
+        indices.contains(index) ? self[index] : nil
+    }
+}
+
 // MARK: - Animation Extensions
 
 extension Animation {

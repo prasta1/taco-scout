@@ -21,8 +21,20 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
 
     func requestLocation() {
         retryCount = 0
-        locationManager.requestWhenInUseAuthorization()
-        locationManager.startUpdatingLocation()
+        let status = locationManager.authorizationStatus
+        if status == .authorizedWhenInUse || status == .authorizedAlways {
+            // Already authorized — start immediately
+            locationManager.startUpdatingLocation()
+        } else if status == .notDetermined {
+            // Will trigger locationManagerDidChangeAuthorization, which starts updates
+            locationManager.requestWhenInUseAuthorization()
+        } else {
+            // Denied or restricted
+            locationLogger.warning("Location access denied or restricted (status: \(status.rawValue))")
+            DispatchQueue.main.async {
+                self.isLoading = false
+            }
+        }
     }
 
     // MARK: - CLLocationManagerDelegate

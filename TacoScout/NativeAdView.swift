@@ -3,11 +3,11 @@ import GoogleMobileAds
 
 /// SwiftUI wrapper for Google AdMob Native Ad
 /// Renders inline with taco list items in a non-intrusive way
-struct NativeAdView: UIViewRepresentable {
-    let nativeAd: GADNativeAd
+struct AdNativeView: UIViewRepresentable {
+    let nativeAd: GoogleMobileAds.NativeAd
     
-    func makeUIView(context: Context) -> GADNativeAdView {
-        let adView = GADNativeAdView()
+    func makeUIView(context: Context) -> GoogleMobileAds.NativeAdView {
+        let adView = GoogleMobileAds.NativeAdView()
         
         // Create a compact, tasteful layout that matches TacoListItemView
         let containerView = createAdLayout()
@@ -32,7 +32,7 @@ struct NativeAdView: UIViewRepresentable {
         return adView
     }
     
-    func updateUIView(_ uiView: GADNativeAdView, context: Context) {
+    func updateUIView(_ uiView: GoogleMobileAds.NativeAdView, context: Context) {
         // Update if needed
     }
     
@@ -144,5 +144,5 @@ struct NativeAdView: UIViewRepresentable {
 /// Wrapper to make native ads identifiable in lists
 struct AdItem: Identifiable {
     let id = UUID()
-    let nativeAd: GADNativeAd
+    let nativeAd: GoogleMobileAds.NativeAd
 }

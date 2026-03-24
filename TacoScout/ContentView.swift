@@ -9,6 +9,7 @@ struct ContentView: View {
     @StateObject private var locationManager = LocationManager()
     @StateObject private var favoritesManager = FavoritesManager()
     @StateObject private var settingsManager = SettingsManager()
+    @ObservedObject private var adManager = AdManager.shared
     @State private var tacos: [TacoLocation] = []
     @State private var selectedTaco: TacoLocation?
     @State private var showDetail = false
@@ -74,13 +75,15 @@ struct ContentView: View {
 
     var body: some View {
         ZStack {
-            if !tacos.isEmpty || debugLocationOverride != nil {
+            if !tacos.isEmpty || debugLocationOverride != nil || loadingStatus == .done || loadingStatus == .noResults {
                 if isLandscape {
                     landscapeLayout
                 } else {
                     portraitLayout
                 }
-            } else {
+            } else if case .error = loadingStatus {
+                LoadingOverlay(status: loadingStatus)
+            } else if loadingStatus == .locating || loadingStatus == .searching {
                 LoadingOverlay(status: loadingStatus)
             }
 
@@ -121,6 +124,7 @@ struct ContentView: View {
             filter.minRating = settingsManager.defaultMinRating
             filter.priceFilter = settingsManager.defaultPriceFilter
             SoundManager.enabled = settingsManager.soundsEnabled
+            adManager.initializeAds()
             checkOnboarding()
             locationManager.requestLocation()
             loadTacosFromLocation()
@@ -249,6 +253,7 @@ struct ContentView: View {
             userLocation: userLocation,
             selectedTaco: $selectedTaco,
             favoritesManager: favoritesManager,
+            adManager: adManager,
             currentDetent: $sheetDetent,
             filter: $filter,
             triggerSearchFocus: $triggerSearchFocus,
@@ -331,6 +336,8 @@ struct ContentView: View {
                 let osmTacos = await TacoService.searchNearbyTacos(location: debugLocation, radiusMeters: settingsManager.searchRadius.meters)
                 await MainActor.run {
                     tacos = osmTacos
+                    loadingStatus = osmTacos.isEmpty ? .noResults : .done
+                    if !osmTacos.isEmpty { adManager.loadAds(count: 3) }
                 }
             }
             return
@@ -355,6 +362,8 @@ struct ContentView: View {
                     logger.debug("⏱️ [TIMING] Total load time: \(String(format: "%.2f", totalElapsed))s (GPS: \(String(format: "%.2f", gpsElapsed))s + API: \(String(format: "%.2f", apiElapsed))s)")
                     await MainActor.run {
                         tacos = realTacos
+                        self.loadingStatus = realTacos.isEmpty ? .noResults : .done
+                        if !realTacos.isEmpty { self.adManager.loadAds(count: 3) }
                     }
                 }
             }
@@ -504,14 +513,20 @@ struct ControlButton: View {
 
 // MARK: - Loading Status
 
-enum LoadingStatus {
+enum LoadingStatus: Equatable {
     case locating
     case searching
+    case done
+    case noResults
+    case error(String)
 
     var message: String {
         switch self {
         case .locating: return "Locating you..."
         case .searching: return "Searching nearby..."
+        case .done: return ""
+        case .noResults: return "No taco spots found nearby"
+        case .error(let msg): return msg
         }
     }
 }
