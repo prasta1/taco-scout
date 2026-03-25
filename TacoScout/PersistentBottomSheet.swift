@@ -528,7 +528,7 @@ struct PersistentBottomSheet: View {
                                 HapticManager.selection()
                                 selectedTaco = taco
                                 onMapCenter(taco.coordinate)
-                                if currentDetent == .peek {
+                                if currentDetent != .half {
                                     withAnimation(.easeOut(duration: 0.3)) {
                                         currentDetent = .half
                                     }
