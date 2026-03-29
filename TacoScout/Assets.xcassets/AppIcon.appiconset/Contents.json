@@ -1,7 +1,7 @@
 {
   "images" : [
     {
-      "filename" : "TacoScout.jpg",
+      "filename" : "TacoScout.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
@@ -13,7 +13,7 @@
           "value" : "dark"
         }
       ],
-      "filename" : "TacoScoutDarkMode.jpg",
+      "filename" : "TacoScoutDarkMode.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"

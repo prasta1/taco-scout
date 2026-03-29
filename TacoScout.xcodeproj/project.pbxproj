@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		C1000003 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = C1000002 /* PrivacyInfo.xcprivacy */; };
 		151640EB2F5A5E4A00DC3540 /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = 151640EA2F5A5E4A00DC3540 /* GoogleMobileAds */; };
 		15888DF72F34C822008D3D62 /* FavoritesManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15888DF62F34C822008D3D62 /* FavoritesManager.swift */; };
 		A1000001 /* TacoScoutApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000001 /* TacoScoutApp.swift */; };
@@ -32,6 +31,7 @@
 		A1000015 /* arriba.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = A2000015 /* arriba.mp3 */; };
 		A1000016 /* AdManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000016 /* AdManager.swift */; };
 		A1000017 /* NativeAdView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000017 /* NativeAdView.swift */; };
+		C1000003 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = C1000002 /* PrivacyInfo.xcprivacy */; };
 		W1000001 /* TacoScoutWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = W2000001 /* TacoScoutWidgetBundle.swift */; };
 		W1000002 /* TacoScoutWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = W2000002 /* TacoScoutWidget.swift */; };
 		W1000003 /* TacoScoutWidgetViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = W2000003 /* TacoScoutWidgetViews.swift */; };
@@ -94,6 +94,8 @@
 		A2000016 /* AdManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdManager.swift; sourceTree = "<group>"; };
 		A2000017 /* NativeAdView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeAdView.swift; sourceTree = "<group>"; };
 		A3000001 /* TacoScout.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TacoScout.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		C1000001 /* Secrets.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Secrets.xcconfig; sourceTree = "<group>"; };
+		C1000002 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		W2000001 /* TacoScoutWidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TacoScoutWidgetBundle.swift; sourceTree = "<group>"; };
 		W2000002 /* TacoScoutWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TacoScoutWidget.swift; sourceTree = "<group>"; };
 		W2000003 /* TacoScoutWidgetViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TacoScoutWidgetViews.swift; sourceTree = "<group>"; };
@@ -101,8 +103,6 @@
 		W2000005 /* TacoScoutWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = TacoScoutWidget.entitlements; sourceTree = "<group>"; };
 		W2000006 /* TacoScout.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = TacoScout.entitlements; sourceTree = "<group>"; };
 		W3000001 /* TacoScoutWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = TacoScoutWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
-		C1000001 /* Secrets.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Secrets.xcconfig; sourceTree = "<group>"; };
-		C1000002 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -124,14 +124,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		C1000004 /* Config */ = {
-			isa = PBXGroup;
-			children = (
-				C1000001 /* Secrets.xcconfig */,
-			);
-			path = Config;
-			sourceTree = "<group>";
-		};
 		A5000001 = {
 			isa = PBXGroup;
 			children = (
@@ -182,6 +174,14 @@
 				W3000001 /* TacoScoutWidgetExtension.appex */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		C1000004 /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				C1000001 /* Secrets.xcconfig */,
+			);
+			path = Config;
 			sourceTree = "<group>";
 		};
 		W5000002 /* TacoScoutWidget */ = {
@@ -487,13 +487,15 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = TacoScout/Info.plist;
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.food-and-drink";
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Taco Scout uses your location to find nearby taco spots.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "TacoScout uses your location to find taco spots near you.";
+				INFOPLIST_KEY_NSUserTrackingUsageDescription = "TacoScount uses this to show you relevant ads and keep TacoScout free.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -520,13 +522,15 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = TacoScout/Info.plist;
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.food-and-drink";
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Taco Scout uses your location to find nearby taco spots.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "TacoScout uses your location to find taco spots near you.";
+				INFOPLIST_KEY_NSUserTrackingUsageDescription = "TacoScount uses this to show you relevant ads and keep TacoScout free.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

@@ -3,6 +3,10 @@ import WidgetKit
 
 @main
 struct TacoScoutApp: App {
+    init() {
+        AdManager.shared.initializeAds()
+    }
+
     var body: some Scene {
         WindowGroup {
             ContentView()

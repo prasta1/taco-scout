@@ -27,19 +27,7 @@ struct ContentView: View {
     @State private var lastSearchedLocation: CLLocationCoordinate2D?
     @Environment(\.verticalSizeClass) var verticalSizeClass
 
-    // DEBUG: Override location for testing different markets
-    // Set to nil to use real GPS location
-    // Examples:
-    //   - Apple HQ (Cupertino): CLLocationCoordinate2D(latitude: 37.3349, longitude: -122.0090)
-    //   - San Francisco: CLLocationCoordinate2D(latitude: 37.7749, longitude: -122.4194)
-    //   - New York: CLLocationCoordinate2D(latitude: 40.7128, longitude: -74.0060)
-    //   - Los Angeles: CLLocationCoordinate2D(latitude: 34.0522, longitude: -118.2437)
-    //   - Chicago: CLLocationCoordinate2D(latitude: 41.8781, longitude: -87.6298)
-    //   - Austin: CLLocationCoordinate2D(latitude: 30.2672, longitude: -97.7431)
-    //   - Burlington, VT: CLLocationCoordinate2D(latitude: 44.4757, longitude: -73.2130)
-    // To test: Uncomment one of the lines below, then rebuild the app
     private let debugLocationOverride: CLLocationCoordinate2D? = nil
-    // private let debugLocationOverride: CLLocationCoordinate2D? = CLLocationCoordinate2D(latitude: 37.3349, longitude: -122.0090) // Apple HQ
 
     var filteredTacos: [TacoLocation] {
         guard let userLocation = effectiveUserLocation else { return [] }
@@ -124,7 +112,6 @@ struct ContentView: View {
             filter.minRating = settingsManager.defaultMinRating
             filter.priceFilter = settingsManager.defaultPriceFilter
             SoundManager.enabled = settingsManager.soundsEnabled
-            adManager.initializeAds()
             checkOnboarding()
             locationManager.requestLocation()
             loadTacosFromLocation()

@@ -82,13 +82,19 @@ struct AdNativeView: UIViewRepresentable {
         container.addSubview(bodyLabel)
         
         // Call to action button
-        let ctaButton = UIButton(type: .system)
+        var ctaConfig = UIButton.Configuration.filled()
+        ctaConfig.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { attrs in
+            var updated = attrs
+            updated.font = UIFont.systemFont(ofSize: 14, weight: .semibold)
+            return updated
+        }
+        ctaConfig.baseBackgroundColor = UIColor(red: 0.2, green: 0.78, blue: 0.35, alpha: 1.0) // tacoGreen
+        ctaConfig.baseForegroundColor = .white
+        ctaConfig.contentInsets = NSDirectionalEdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16)
+        ctaConfig.cornerStyle = .fixed
+        let ctaButton = UIButton(configuration: ctaConfig)
         ctaButton.tag = 4
-        ctaButton.titleLabel?.font = UIFont.systemFont(ofSize: 14, weight: .semibold)
-        ctaButton.backgroundColor = UIColor(red: 0.2, green: 0.78, blue: 0.35, alpha: 1.0) // tacoGreen
-        ctaButton.setTitleColor(.white, for: .normal)
         ctaButton.layer.cornerRadius = 8
-        ctaButton.contentEdgeInsets = UIEdgeInsets(top: 8, left: 16, bottom: 8, right: 16)
         ctaButton.translatesAutoresizingMaskIntoConstraints = false
         container.addSubview(ctaButton)
         

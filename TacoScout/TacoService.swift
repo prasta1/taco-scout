@@ -6,14 +6,42 @@ private let logger = Logger(subsystem: "com.tacoscout.app", category: "TacoServi
 
 struct TacoService {
 
+    // MARK: - Search Cache
+
+    /// Cached result from the last successful Places API call.
+    private struct CachedSearch {
+        let location: CLLocationCoordinate2D
+        let radiusMeters: Double
+        let results: [TacoLocation]
+        let timestamp: Date
+
+        /// Cache is valid if the user is within 500m of the last search center and it's less than 10 minutes old.
+        func isValid(for newLocation: CLLocationCoordinate2D, radiusMeters newRadius: Double) -> Bool {
+            guard newRadius == radiusMeters else { return false }
+            guard Date().timeIntervalSince(timestamp) < 600 else { return false }
+            let cached = CLLocation(latitude: location.latitude, longitude: location.longitude)
+            let current = CLLocation(latitude: newLocation.latitude, longitude: newLocation.longitude)
+            return cached.distance(from: current) < 500
+        }
+    }
+
+    private static var cache: CachedSearch?
+
     // MARK: - Search via Google Places API
 
     static func searchNearbyTacos(location: CLLocationCoordinate2D, radiusMeters: Double = 50000) async -> [TacoLocation] {
+        // Return cached results if the user hasn't moved far and the cache is fresh
+        if let cached = cache, cached.isValid(for: location, radiusMeters: radiusMeters) {
+            logger.debug("📦 [CACHE HIT] Returning \(cached.results.count) cached tacos")
+            return cached.results
+        }
+
         let start = Date()
 
         if let googleTacos = await searchNearbyTacosWithGooglePlaces(location: location, radiusMeters: radiusMeters),
            !googleTacos.isEmpty {
             logger.debug("⏱️ [GOOGLE] Returned \(googleTacos.count) tacos in \(String(format: "%.2f", Date().timeIntervalSince(start)))s")
+            cache = CachedSearch(location: location, radiusMeters: radiusMeters, results: googleTacos, timestamp: Date())
             return googleTacos
         }
         logger.debug("⏱️ [GOOGLE] No results or failed in \(String(format: "%.2f", Date().timeIntervalSince(start)))s")
