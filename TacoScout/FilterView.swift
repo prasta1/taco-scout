@@ -6,7 +6,7 @@ struct FilterView: View {
     @EnvironmentObject var settingsManager: SettingsManager
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             Form {
                 // Sort By
                 Section("Sort By") {

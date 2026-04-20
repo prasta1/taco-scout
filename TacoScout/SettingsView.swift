@@ -7,7 +7,7 @@ struct SettingsView: View {
     @State private var showingMailError = false
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             ScrollView {
                 VStack(spacing: 16) {
                     // Branded header

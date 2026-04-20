@@ -15,7 +15,7 @@ struct TacoDetailView: View {
     }
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             ScrollView {
                 VStack(spacing: 0) {
                     // Drag Bar
@@ -243,10 +243,11 @@ struct TacoDetailView: View {
 
     func shareLocation() {
         HapticManager.impact(.light)
-        let items: [Any] = [
-            "\(taco.name) - \(taco.address)",
-            URL(string: "https://maps.apple.com/?q=\(taco.name.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")&ll=\(taco.latitude),\(taco.longitude)")!
-        ]
+        let encodedName = taco.name.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+        var items: [Any] = ["\(taco.name) - \(taco.address)"]
+        if let mapURL = URL(string: "https://maps.apple.com/?q=\(encodedName)&ll=\(taco.latitude),\(taco.longitude)") {
+            items.append(mapURL)
+        }
         let activityVC = UIActivityViewController(activityItems: items, applicationActivities: nil)
 
         if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,

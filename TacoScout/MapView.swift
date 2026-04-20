@@ -72,12 +72,20 @@ struct MapView: UIViewRepresentable {
             mapView.layoutMargins = newMargins
         }
 
-        // Only update annotations if the taco list actually changed
+        // Only update annotations if the taco list actually changed (IDs or content)
         let existingTacoAnnotations = mapView.annotations.compactMap { $0 as? TacoAnnotation }
         let existingIDs = Set(existingTacoAnnotations.map { $0.taco.id })
         let newIDs = Set(tacos.map { $0.id })
 
-        if existingIDs != newIDs {
+        let contentChanged = existingIDs != newIDs || existingTacoAnnotations.contains { annotation in
+            guard let match = tacos.first(where: { $0.id == annotation.taco.id }) else { return true }
+            return match.name != annotation.taco.name
+                || match.rating != annotation.taco.rating
+                || match.latitude != annotation.taco.latitude
+                || match.longitude != annotation.taco.longitude
+        }
+
+        if contentChanged {
             // Remove old annotations
             if !existingTacoAnnotations.isEmpty {
                 mapView.removeAnnotations(existingTacoAnnotations)

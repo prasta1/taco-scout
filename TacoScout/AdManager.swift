@@ -1,11 +1,13 @@
 import Foundation
 import GoogleMobileAds
+import AppTrackingTransparency
+import UIKit
 import os.log
 
 private let logger = Logger(subsystem: "com.tacoscout.app", category: "AdManager")
 
 /// Manages Google AdMob native ads for TacoScout.
-/// Handles ad loading, caching, and lifecycle management.
+/// Handles consent (UMP/GDPR), ATT authorization, SDK init, ad loading, and caching.
 class AdManager: NSObject, ObservableObject {
     static let shared = AdManager()
     
@@ -17,12 +19,33 @@ class AdManager: NSObject, ObservableObject {
     private var isLoading = false
     
     private static let productionAdUnitID = "ca-app-pub-1535647318722240/1255770409"
+    private static let testAdUnitID = "ca-app-pub-3940256099942544/3986624511" // Google's official test ID
 
     private override init() {
+        #if DEBUG
+        self.adUnitID = AdManager.testAdUnitID
+        #else
         self.adUnitID = AdManager.productionAdUnitID
+        #endif
         super.init()
     }
     
+    // MARK: - Consent + ATT + SDK Init
+    
+    /// Startup sequence: ATT authorization → AdMob init.
+    /// Must be called once from the main actor after the window hierarchy is ready.
+    @MainActor
+    func requestConsentAndInitialize() async {
+        // Request ATT (Apple's app tracking transparency prompt).
+        // This is required before AdMob can access the IDFA for personalized ads.
+        if ATTrackingManager.trackingAuthorizationStatus == .notDetermined {
+            logger.debug("Requesting ATT authorization...")
+            _ = await ATTrackingManager.requestTrackingAuthorization()
+        }
+        
+        initializeAds()
+    }
+
     /// Initialize Google Mobile Ads SDK
     func initializeAds() {
         GoogleMobileAds.MobileAds.shared.start { status in

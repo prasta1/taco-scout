@@ -760,42 +760,64 @@ struct SelectedTacoSection: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            HStack(spacing: 12) {
-                // Hero photo or placeholder
-                Group {
-                    if let firstPhoto = taco.photos.first {
-                        AsyncImage(url: URL(string: firstPhoto)) { phase in
-                            switch phase {
-                            case .success(let image):
-                                image
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fill)
-                            default:
-                                PlaceholderImage(name: taco.name)
+            VStack(spacing: 8) {
+                // Tappable card area — opens detail view
+                HStack(spacing: 12) {
+                    // Hero photo or placeholder
+                    Group {
+                        if let firstPhoto = taco.photos.first {
+                            AsyncImage(url: URL(string: firstPhoto)) { phase in
+                                switch phase {
+                                case .success(let image):
+                                    image
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fill)
+                                default:
+                                    PlaceholderImage(name: taco.name)
+                                }
+                            }
+                        } else {
+                            PlaceholderImage(name: taco.name)
+                        }
+                    }
+                    .frame(width: 90, height: 90)
+                    .cornerRadius(12)
+                    .clipped()
+
+                    // Info
+                    VStack(alignment: .leading, spacing: 5) {
+                        HStack(spacing: 6) {
+                            Text(taco.name)
+                                .font(.subheadline)
+                                .fontWeight(.bold)
+                                .lineLimit(1)
+
+                            if taco.isOpenNow {
+                                OpenBadge()
                             }
                         }
-                    } else {
-                        PlaceholderImage(name: taco.name)
-                    }
-                }
-                .frame(width: 130, height: 130)
-                .cornerRadius(14)
-                .clipped()
 
-                // Info
-                VStack(alignment: .leading, spacing: 6) {
-                    HStack(spacing: 6) {
-                        Text(taco.name)
-                            .font(.subheadline)
-                            .fontWeight(.bold)
-                            .lineLimit(1)
-
-                        if taco.isOpenNow {
-                            OpenBadge()
+                        HStack(spacing: 6) {
+                            RatingBadge(rating: taco.rating)
+                            Text(taco.priceString)
+                                .font(.caption2)
+                                .fontWeight(.semibold)
+                                .foregroundColor(.tacoGreen)
+                            Text(taco.cuisine)
+                                .font(.caption2)
+                                .foregroundColor(.secondary)
+                                .lineLimit(1)
                         }
 
-                        Spacer(minLength: 0)
+                        Text(taco.address)
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                            .lineLimit(1)
+                    }
 
+                    Spacer(minLength: 0)
+
+                    VStack(alignment: .trailing, spacing: 6) {
                         // Dismiss button
                         Button(action: onDismiss) {
                             Image(systemName: "xmark")
@@ -807,73 +829,59 @@ struct SelectedTacoSection: View {
                                 .clipShape(Circle())
                         }
                         .buttonStyle(.plain)
-                    }
 
-                    HStack(spacing: 6) {
-                        RatingBadge(rating: taco.rating)
-                        Text(taco.priceString)
-                            .font(.caption2)
-                            .fontWeight(.semibold)
-                            .foregroundColor(.tacoGreen)
-                        Text(taco.cuisine)
-                            .font(.caption2)
-                            .foregroundColor(.secondary)
-                            .lineLimit(1)
-                        Spacer(minLength: 0)
                         Text("\(String(format: "%.1f", distance)) \(distanceUnit.abbreviation)")
                             .font(.caption)
                             .fontWeight(.semibold)
                             .foregroundColor(.secondary)
+
+                        Image(systemName: "chevron.right")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
                     }
+                }
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    HapticManager.impact(.medium)
+                    onDetailsTap()
+                }
 
-                    // Action row
-                    HStack(spacing: 8) {
-                        Button(action: onFavoriteToggle) {
-                            Image(systemName: isFavorite ? "heart.fill" : "heart")
-                                .font(.body)
-                                .foregroundColor(isFavorite ? .red : .secondary)
-                                .frame(width: 40, height: 36)
-                                .background(Color(.systemGray5))
-                                .cornerRadius(8)
-                        }
-                        .buttonStyle(.plain)
-
-                        Button(action: openMaps) {
-                            Image(systemName: "arrow.triangle.turn.up.right.diamond.fill")
-                                .font(.body)
-                                .foregroundColor(.white)
-                                .frame(width: 40, height: 36)
-                                .background(Color.blue)
-                                .cornerRadius(8)
-                        }
-                        .buttonStyle(.plain)
-
-                        Button(action: openDelivery) {
-                            HStack(spacing: 5) {
-                                Image(systemName: "bag.fill")
-                                    .font(.subheadline)
-                                Text("Order")
-                                    .font(.subheadline)
-                                    .fontWeight(.semibold)
-                            }
-                            .frame(maxWidth: .infinity, minHeight: 36)
-                            .background(Color.tacoGreen)
-                            .foregroundColor(.white)
+                // Action row — stays outside the tappable area
+                HStack(spacing: 8) {
+                    Button(action: onFavoriteToggle) {
+                        Image(systemName: isFavorite ? "heart.fill" : "heart")
+                            .font(.body)
+                            .foregroundColor(isFavorite ? .red : .secondary)
+                            .frame(width: 40, height: 36)
+                            .background(Color(.systemGray5))
                             .cornerRadius(8)
-                        }
-                        .buttonStyle(.plain)
-
-                        Button(action: onDetailsTap) {
-                            Image(systemName: "info.circle.fill")
-                                .font(.body)
-                                .foregroundColor(.white)
-                                .frame(width: 40, height: 36)
-                                .background(Color.tacoOrange)
-                                .cornerRadius(8)
-                        }
-                        .buttonStyle(.plain)
                     }
-                    .padding(.top, 4)
+                    .buttonStyle(.plain)
+
+                    Button(action: openMaps) {
+                        Image(systemName: "arrow.triangle.turn.up.right.diamond.fill")
+                            .font(.body)
+                            .foregroundColor(.white)
+                            .frame(width: 40, height: 36)
+                            .background(Color.blue)
+                            .cornerRadius(8)
+                    }
+                    .buttonStyle(.plain)
+
+                    Button(action: openDelivery) {
+                        HStack(spacing: 5) {
+                            Image(systemName: "bag.fill")
+                                .font(.subheadline)
+                            Text("Order")
+                                .font(.subheadline)
+                                .fontWeight(.semibold)
+                        }
+                        .frame(maxWidth: .infinity, minHeight: 36)
+                        .background(Color.tacoGreen)
+                        .foregroundColor(.white)
+                        .cornerRadius(8)
+                    }
+                    .buttonStyle(.plain)
                 }
             }
             .padding(12)

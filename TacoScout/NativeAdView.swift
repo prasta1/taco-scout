@@ -33,7 +33,14 @@ struct AdNativeView: UIViewRepresentable {
     }
     
     func updateUIView(_ uiView: GoogleMobileAds.NativeAdView, context: Context) {
-        // Update if needed
+        guard uiView.nativeAd !== nativeAd else { return }
+        uiView.nativeAd = nativeAd
+        (uiView.headlineView as? UILabel)?.text = nativeAd.headline
+        (uiView.bodyView as? UILabel)?.text = nativeAd.body
+        (uiView.iconView as? UIImageView)?.image = nativeAd.icon?.image
+        if let cta = nativeAd.callToAction {
+            (uiView.callToActionView as? UIButton)?.setTitle(cta, for: .normal)
+        }
     }
     
     private func createAdLayout() -> UIView {

@@ -24,7 +24,6 @@ class FavoritesManager: ObservableObject {
             favoriteIDs.insert(taco.id)
         }
         save()
-        objectWillChange.send()
     }
     
     private func save() {

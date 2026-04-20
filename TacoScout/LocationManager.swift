@@ -40,18 +40,20 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     // MARK: - CLLocationManagerDelegate
 
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        if let location = locations.first {
-            DispatchQueue.main.async {
-                self.userLocation = location.coordinate
-                self.isLoading = false
-            }
-            if let shared = UserDefaults(suiteName: "group.com.tacoscout.app") {
-                shared.set(location.coordinate.latitude, forKey: "widgetLastLatitude")
-                shared.set(location.coordinate.longitude, forKey: "widgetLastLongitude")
-            }
-            // Stop continuous updates once we have a fix — saves battery
-            manager.stopUpdatingLocation()
+        // Use the most recent fix; skip stale cached locations (older than 30s)
+        guard let location = locations.last,
+              location.timestamp.timeIntervalSinceNow > -30 else { return }
+
+        DispatchQueue.main.async {
+            self.userLocation = location.coordinate
+            self.isLoading = false
         }
+        if let shared = UserDefaults(suiteName: "group.com.tacoscout.app") {
+            shared.set(location.coordinate.latitude, forKey: "widgetLastLatitude")
+            shared.set(location.coordinate.longitude, forKey: "widgetLastLongitude")
+        }
+        // Stop continuous updates once we have a fresh fix — saves battery
+        manager.stopUpdatingLocation()
     }
 
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {

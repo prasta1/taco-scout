@@ -13,6 +13,8 @@
 			</array>
 		</dict>
 	</array>
+	<key>NSUserTrackingUsageDescription</key>
+	<string>TacoScout uses this to show you ads that are relevant to your interests. You can always change this in Settings.</string>
 	<key>GADApplicationIdentifier</key>
 	<string>ca-app-pub-1535647318722240~3937774061</string>
 	<key>GOOGLE_PLACES_API_KEY</key>

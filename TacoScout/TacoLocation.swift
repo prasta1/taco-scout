@@ -58,9 +58,22 @@ struct BusinessHours: Codable {
         for period in periods {
             if period.open.day == weekday {
                 let openTime = period.open.time
-                let closeTime = period.close?.time ?? 2359
-                
-                if currentTime >= openTime && currentTime <= closeTime {
+
+                if let close = period.close, close.day != weekday {
+                    // Overnight: closes on the next calendar day — open if past open time
+                    if currentTime >= openTime {
+                        return true
+                    }
+                } else {
+                    // Normal same-day period (or 24h with no close)
+                    let closeTime = period.close?.time ?? 2359
+                    if currentTime >= openTime && currentTime <= closeTime {
+                        return true
+                    }
+                }
+            } else if let close = period.close, close.day == weekday {
+                // Previous day's overnight period still active until close time today
+                if currentTime <= close.time {
                     return true
                 }
             }

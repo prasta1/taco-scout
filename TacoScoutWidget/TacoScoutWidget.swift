@@ -22,7 +22,7 @@ struct SharedDataManager {
     static var searchRadiusMeters: Double {
         guard let defaults = sharedDefaults else { return 25 * 1609.34 }
         let raw = defaults.integer(forKey: "settingsSearchRadius")
-        let miles = raw > 0 ? raw : 25
+        let miles = raw > 0 ? raw : 5
         return Double(miles) * 1609.34
     }
 

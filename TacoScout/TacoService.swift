@@ -91,7 +91,7 @@ struct TacoService {
         request.setValue(apiKey, forHTTPHeaderField: "X-Goog-Api-Key")
         // Field mask — only request fields we actually use (controls billing + payload size)
         request.setValue(
-            "places.id,places.displayName,places.location,places.rating,places.priceLevel,places.shortFormattedAddress,places.types,places.photos",
+            "places.id,places.displayName,places.location,places.rating,places.priceLevel,places.shortFormattedAddress,places.types,places.photos,places.regularOpeningHours",
             forHTTPHeaderField: "X-Goog-FieldMask"
         )
 
@@ -134,7 +134,17 @@ struct TacoService {
                                 "https://places.googleapis.com/v1/\(photo.name)/media?maxWidthPx=400&key=\(apiKey)"
                             } ?? [],
                             reviews: [],
-                            hours: nil,
+                            hours: place.regularOpeningHours.map { apiHours in
+                                BusinessHours(
+                                    periods: (apiHours.periods ?? []).map { p in
+                                        HoursPeriod(
+                                            open: HoursTime(day: p.open.day, time: p.open.hour * 100 + p.open.minute),
+                                            close: p.close.map { HoursTime(day: $0.day, time: $0.hour * 100 + $0.minute) }
+                                        )
+                                    },
+                                    weekdayText: apiHours.weekdayDescriptions ?? []
+                                )
+                            },
                             phone: nil,
                             website: nil
                         )
@@ -272,6 +282,7 @@ struct PlaceNewResult: Codable {
     let shortFormattedAddress: String?
     let types: [String]?
     let photos: [PlaceNewPhoto]?
+    let regularOpeningHours: PlaceNewOpeningHours?
 
     /// Convert the new API's string price level to an integer (1-3) for our model
     var priceLevelInt: Int {
@@ -299,5 +310,21 @@ struct PlaceNewPhoto: Codable {
     let name: String
     let widthPx: Int?
     let heightPx: Int?
+}
+
+struct PlaceNewOpeningHours: Codable {
+    let periods: [PlaceNewOpeningPeriod]?
+    let weekdayDescriptions: [String]?
+}
+
+struct PlaceNewOpeningPeriod: Codable {
+    let open: PlaceNewOpeningTime
+    let close: PlaceNewOpeningTime?
+}
+
+struct PlaceNewOpeningTime: Codable {
+    let day: Int
+    let hour: Int
+    let minute: Int
 }
 

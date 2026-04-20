@@ -23,6 +23,7 @@ struct ContentView: View {
     @State private var showSearchOverlay = false
     @State private var mapZoomController = MapZoomController()
     @State private var cancellables = Set<AnyCancellable>()
+    @State private var refreshCancellable: AnyCancellable?
     @State private var loadingStatus: LoadingStatus = .locating
     @State private var lastSearchedLocation: CLLocationCoordinate2D?
     @Environment(\.verticalSizeClass) var verticalSizeClass
@@ -115,6 +116,11 @@ struct ContentView: View {
             checkOnboarding()
             locationManager.requestLocation()
             loadTacosFromLocation()
+        }
+        .task {
+            // Run UMP consent → ATT → AdMob init sequence once on launch.
+            // The window hierarchy is ready by the time .task fires.
+            await AdManager.shared.requestConsentAndInitialize()
         }
         .onChange(of: settingsManager.soundsEnabled) { _, newValue in
             SoundManager.enabled = newValue
@@ -377,7 +383,13 @@ struct ContentView: View {
                 location: location,
                 radiusMeters: settingsManager.searchRadius.meters
             )
-            await MainActor.run { tacos = results }
+            await MainActor.run {
+                tacos = results
+                if !results.isEmpty {
+                    adManager.clearAds()
+                    adManager.loadAds(count: 3)
+                }
+            }
         }
     }
 
@@ -386,7 +398,8 @@ struct ContentView: View {
         locationManager.requestLocation()
 
         // Wait for new location, then center map and refetch if we've moved significantly
-        locationManager.$userLocation
+        // Use a dedicated cancellable — replaced on each call so only one subscription is active
+        refreshCancellable = locationManager.$userLocation
             .compactMap { $0 }
             .first()
             .sink { newLocation in
@@ -413,7 +426,6 @@ struct ContentView: View {
                     }
                 }
             }
-            .store(in: &cancellables)
     }
     
     func pickLuckyTaco() {
@@ -544,6 +556,7 @@ struct LoadingOverlay: View {
                 ProgressView()
                     .tint(.tacoOrange)
             }
+            .frame(width: 220)
             .padding(32)
             .background(Color(.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 20))
         }
