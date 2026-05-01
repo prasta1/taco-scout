@@ -1,4 +1,5 @@
 import SwiftUI
+import StoreKit
 
 struct SettingsView: View {
     @ObservedObject var settingsManager: SettingsManager
@@ -48,6 +49,12 @@ struct SettingsView: View {
                             .padding(.bottom, 8)
 
                         VStack(alignment: .leading, spacing: 14) {
+                            // Open Now
+                            Toggle(isOn: $settingsManager.defaultOpenNowOnly) {
+                                SettingsLabel("Open Now Only", icon: "clock")
+                            }
+                            .tint(.tacoOrange)
+
                             // Search Radius
                             VStack(alignment: .leading, spacing: 6) {
                                 SettingsLabel("Search Radius", icon: "location.circle")
@@ -105,11 +112,6 @@ struct SettingsView: View {
                                 .pickerStyle(.segmented)
                             }
 
-                            // Open Now
-                            Toggle(isOn: $settingsManager.defaultOpenNowOnly) {
-                                SettingsLabel("Open Now Only", icon: "clock")
-                            }
-                            .tint(.tacoOrange)
                         }
                         .padding(.horizontal, 16)
                         .padding(.bottom, 16)
@@ -127,7 +129,7 @@ struct SettingsView: View {
                             .padding(.horizontal, 24)
                             .padding(.top, 8)
 
-                        SectionHeader(emoji: "🪖", title: "General Settings & About")
+                        SectionHeader(emoji: "🪖", title: "General Settings")
                             .padding(.horizontal, 16)
                             .padding(.top, 12)
                             .padding(.bottom, 8)
@@ -151,9 +153,40 @@ struct SettingsView: View {
                                 SettingsLabel("Re-show Onboarding", icon: "book.pages")
                             }
 
-                            Button(action: openFeedbackEmail) {
+                            Link(destination: URL(string: "https://github.com/prasta1")!) {
                                 HStack {
-                                    SettingsLabel("Send Feedback", icon: "envelope")
+                                    SettingsLabel("About the Developer", icon: "person.crop.circle")
+                                    Spacer()
+                                    Image(systemName: "arrow.up.right.square")
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                }
+                            }
+                        }
+                        .padding(.horizontal, 16)
+                        .padding(.bottom, 16)
+                    }
+                    .background(Color(.systemBackground), in: RoundedRectangle(cornerRadius: 12))
+                    .shadow(color: .black.opacity(0.08), radius: 8, y: 2)
+                    .padding(.horizontal, 16)
+
+                    // ── Feedback & Ideas ──
+                    VStack(alignment: .leading, spacing: 0) {
+                        RoundedRectangle(cornerRadius: 2)
+                            .fill(Color.tacoOrange)
+                            .frame(height: 3)
+                            .padding(.horizontal, 24)
+                            .padding(.top, 8)
+
+                        SectionHeader(emoji: "💬", title: "Feedback & Ideas")
+                            .padding(.horizontal, 16)
+                            .padding(.top, 12)
+                            .padding(.bottom, 8)
+
+                        VStack(alignment: .leading, spacing: 14) {
+                            Button(action: { openEmail(subject: "TacoScout Bug Report", body: bugReportBody) }) {
+                                HStack {
+                                    SettingsLabel("Report a Bug", icon: "ladybug")
                                     Spacer()
                                     Image(systemName: "arrow.up.right.square")
                                         .font(.caption)
@@ -161,13 +194,23 @@ struct SettingsView: View {
                                 }
                             }
 
-                            Link(destination: URL(string: "https://github.com/prasta")!) {
+                            Button(action: { openEmail(subject: "TacoScout Feature Request", body: featureRequestBody) }) {
                                 HStack {
-                                    SettingsLabel("GitHub", icon: "chevron.left.forwardslash.chevron.right")
+                                    SettingsLabel("Request a Feature", icon: "lightbulb")
                                     Spacer()
                                     Image(systemName: "arrow.up.right.square")
                                         .font(.caption)
                                         .foregroundColor(.secondary)
+                                }
+                            }
+
+                            Button(action: requestAppReview) {
+                                HStack {
+                                    SettingsLabel("Rate TacoScout", icon: "star.bubble")
+                                    Spacer()
+                                    Image(systemName: "heart.fill")
+                                        .font(.caption)
+                                        .foregroundColor(.tacoOrange)
                                 }
                             }
                         }
@@ -190,7 +233,7 @@ struct SettingsView: View {
             .alert("Unable to Send", isPresented: $showingMailError) {
                 Button("OK", role: .cancel) {}
             } message: {
-                Text("Could not open your email client. Please send feedback to ruster.patrick@gmail.com")
+                Text("Could not open your email client. You can reach us at ruster.patrick@gmail.com")
             }
         }
     }
@@ -199,10 +242,49 @@ struct SettingsView: View {
         Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
     }
 
-    private func openFeedbackEmail() {
-        let subject = "TacoScout Feedback"
-            .addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
-        let mailto = "mailto:ruster.patrick@gmail.com?subject=\(subject)"
+    private var bugReportBody: String {
+        """
+        
+        --- Please describe the bug below ---
+        
+        What happened:
+        
+        
+        What I expected:
+        
+        
+        Steps to reproduce:
+        1. 
+        2. 
+        3. 
+        
+        ---
+        App Version: \(appVersion)
+        iOS: \(UIDevice.current.systemVersion)
+        Device: \(UIDevice.current.model)
+        """
+    }
+
+    private var featureRequestBody: String {
+        """
+        
+        --- Describe your idea below ---
+        
+        What I'd love to see:
+        
+        
+        Why it would be useful:
+        
+        
+        ---
+        App Version: \(appVersion)
+        """
+    }
+
+    private func openEmail(subject: String, body: String) {
+        let encodedSubject = subject.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+        let encodedBody = body.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+        let mailto = "mailto:ruster.patrick@gmail.com?subject=\(encodedSubject)&body=\(encodedBody)"
 
         if let url = URL(string: mailto) {
             UIApplication.shared.open(url) { success in
@@ -213,6 +295,11 @@ struct SettingsView: View {
         } else {
             showingMailError = true
         }
+    }
+
+    private func requestAppReview() {
+        guard let scene = UIApplication.shared.connectedScenes.first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene else { return }
+        AppStore.requestReview(in: scene)
     }
 }
 
