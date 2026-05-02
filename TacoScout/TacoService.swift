@@ -91,7 +91,7 @@ struct TacoService {
         request.setValue(apiKey, forHTTPHeaderField: "X-Goog-Api-Key")
         // Field mask — only request fields we actually use (controls billing + payload size)
         request.setValue(
-            "places.id,places.displayName,places.location,places.rating,places.priceLevel,places.shortFormattedAddress,places.types,places.photos,places.regularOpeningHours",
+            "places.id,places.displayName,places.location,places.rating,places.priceLevel,places.shortFormattedAddress,places.types,places.photos,places.regularOpeningHours,places.internationalPhoneNumber,places.websiteUri",
             forHTTPHeaderField: "X-Goog-FieldMask"
         )
 
@@ -145,8 +145,8 @@ struct TacoService {
                                     weekdayText: apiHours.weekdayDescriptions ?? []
                                 )
                             },
-                            phone: nil,
-                            website: nil
+                            phone: place.internationalPhoneNumber,
+                            website: place.websiteUri
                         )
                     }
                     return tacos
@@ -245,6 +245,36 @@ struct TacoService {
         return result
     }
     
+    // MARK: - Place Details (reviews, fetched on demand per restaurant tap)
+
+    static func fetchReviews(placeId: String) async -> [Review] {
+        guard let apiKey = getGooglePlacesAPIKey() else { return [] }
+
+        let url = URL(string: "https://places.googleapis.com/v1/places/\(placeId)")!
+        var request = URLRequest(url: url)
+        request.timeoutInterval = 6.0
+        request.setValue(apiKey, forHTTPHeaderField: "X-Goog-Api-Key")
+        request.setValue("reviews", forHTTPHeaderField: "X-Goog-FieldMask")
+
+        do {
+            let (data, response) = try await URLSession.shared.data(for: request)
+            guard (response as? HTTPURLResponse)?.statusCode == 200 else { return [] }
+            let details = try JSONDecoder().decode(PlaceDetailsResponse.self, from: data)
+            return (details.reviews ?? []).map { r in
+                Review(
+                    authorName: r.authorAttribution.displayName,
+                    rating: Double(r.rating),
+                    text: r.text?.text ?? "",
+                    relativeTime: r.relativePublishTimeDescription,
+                    profilePhotoUrl: r.authorAttribution.photoUri
+                )
+            }
+        } catch {
+            logger.error("Place Details fetch error: \(error.localizedDescription)")
+            return []
+        }
+    }
+
     // MARK: - Random Pick ("I'm Feeling Lucky")
 
     static func randomPick(from tacos: [TacoLocation], minRating: Double = 2.0) -> TacoLocation? {
@@ -283,6 +313,8 @@ struct PlaceNewResult: Codable {
     let types: [String]?
     let photos: [PlaceNewPhoto]?
     let regularOpeningHours: PlaceNewOpeningHours?
+    let internationalPhoneNumber: String?
+    let websiteUri: String?
 
     /// Convert the new API's string price level to an integer (1-3) for our model
     var priceLevelInt: Int {
@@ -326,5 +358,28 @@ struct PlaceNewOpeningTime: Codable {
     let day: Int
     let hour: Int
     let minute: Int
+}
+
+// MARK: - Google Places Place Details Response Models
+
+struct PlaceDetailsResponse: Codable {
+    let reviews: [PlaceReview]?
+}
+
+struct PlaceReview: Codable {
+    let rating: Int
+    let relativePublishTimeDescription: String
+    let text: PlaceReviewText?
+    let authorAttribution: PlaceAuthorAttribution
+}
+
+struct PlaceReviewText: Codable {
+    let text: String
+}
+
+struct PlaceAuthorAttribution: Codable {
+    let displayName: String
+    let uri: String?
+    let photoUri: String?
 }
 

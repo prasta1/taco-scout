@@ -9,6 +9,9 @@ struct TacoDetailView: View {
     @Environment(\.dismiss) var dismiss
     @EnvironmentObject var settingsManager: SettingsManager
     @State private var selectedPhotoIndex = 0
+    @State private var showAllHours = false
+    @State private var loadedReviews: [Review] = []
+    @State private var reviewsLoading = false
 
     var distance: Double {
         DistanceCalculator.distance(from: userLocation, to: taco.coordinate, unit: settingsManager.distanceUnit)
@@ -116,11 +119,37 @@ struct TacoDetailView: View {
                                             .font(.subheadline)
                                             .fontWeight(.semibold)
                                             .foregroundColor(taco.isOpenNow ? .tacoGreen : .tacoRed)
+                                        Spacer()
+                                        Button(action: {
+                                            withAnimation(.easeInOut(duration: 0.2)) {
+                                                showAllHours.toggle()
+                                            }
+                                        }) {
+                                            HStack(spacing: 4) {
+                                                Text(showAllHours ? "Less" : "All hours")
+                                                    .font(.caption)
+                                                Image(systemName: showAllHours ? "chevron.up" : "chevron.down")
+                                                    .font(.caption2)
+                                            }
+                                            .foregroundColor(.secondary)
+                                        }
                                     }
-                                    
-                                    Text("Today: \(hours.todayHours)")
-                                        .font(.subheadline)
-                                        .foregroundColor(.secondary)
+
+                                    if showAllHours {
+                                        let todayIndex = Calendar.current.component(.weekday, from: Date()) - 1
+                                        VStack(alignment: .leading, spacing: 4) {
+                                            ForEach(Array(hours.weekdayText.enumerated()), id: \.offset) { index, dayText in
+                                                Text(dayText)
+                                                    .font(.subheadline)
+                                                    .foregroundColor(index == todayIndex ? .primary : .secondary)
+                                                    .fontWeight(index == todayIndex ? .semibold : .regular)
+                                            }
+                                        }
+                                    } else {
+                                        Text("Today: \(hours.todayHours)")
+                                            .font(.subheadline)
+                                            .foregroundColor(.secondary)
+                                    }
                                 }
                             }
                         }
@@ -146,10 +175,20 @@ struct TacoDetailView: View {
                         }
                         
                         // Reviews Section
-                        if !taco.reviews.isEmpty {
+                        if reviewsLoading {
+                            InfoSection(title: "Reviews") {
+                                HStack {
+                                    ProgressView()
+                                        .padding(.trailing, 4)
+                                    Text("Loading reviews…")
+                                        .font(.subheadline)
+                                        .foregroundColor(.secondary)
+                                }
+                            }
+                        } else if !loadedReviews.isEmpty {
                             InfoSection(title: "Reviews") {
                                 VStack(spacing: 12) {
-                                    ForEach(taco.reviews.prefix(3)) { review in
+                                    ForEach(loadedReviews.prefix(5)) { review in
                                         ReviewCard(review: review)
                                     }
                                 }
@@ -185,6 +224,11 @@ struct TacoDetailView: View {
                 }
             }
             .ignoresSafeArea(edges: .top)
+            .task {
+                reviewsLoading = true
+                loadedReviews = await TacoService.fetchReviews(placeId: taco.id)
+                reviewsLoading = false
+            }
             .overlay(alignment: .bottom) {
                 // Floating Action Buttons
                 HStack(spacing: 12) {
