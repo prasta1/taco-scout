@@ -9,9 +9,27 @@ struct TacoDetailView: View {
     @Environment(\.dismiss) var dismiss
     @EnvironmentObject var settingsManager: SettingsManager
     @State private var selectedPhotoIndex = 0
+    @State private var showOrderSheet = false
 
     var distance: Double {
         DistanceCalculator.distance(from: userLocation, to: taco.coordinate, unit: settingsManager.distanceUnit)
+    }
+
+    /// Delivery apps currently installed on this device.
+    var availableOrderingApps: [DeliveryLinkHelper.DeliveryOption] {
+        DeliveryLinkHelper.options(for: taco.name, latitude: taco.latitude, longitude: taco.longitude)
+            .filter { $0.isAppInstalled }
+    }
+
+    /// Label and icon for the Order button based on the tier chain.
+    /// Returns nil when no ordering is possible at all (no apps, no website, no phone).
+    var orderButtonConfig: (label: String, icon: String)? {
+        let apps = availableOrderingApps
+        if apps.count == 1 { return ("Order on \(apps[0].name)", apps[0].icon) }
+        if apps.count > 1  { return ("Order", "bag.fill") }
+        if taco.website != nil { return ("Order Online", "globe") }
+        if taco.phone != nil   { return ("Call to Order", "phone.fill") }
+        return nil
     }
 
     var body: some View {
@@ -198,13 +216,34 @@ struct TacoDetailView: View {
                             .cornerRadius(14)
                     }
 
-                    Button(action: openDelivery) {
-                        Label("Order", systemImage: "bag.fill")
-                            .font(.headline)
+                    if let config = orderButtonConfig {
+                        Button(action: openDelivery) {
+                            Label(config.label, systemImage: config.icon)
+                                .font(.headline)
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(Color.tacoGreen)
+                                .foregroundColor(.white)
+                                .cornerRadius(14)
+                        }
+                        .confirmationDialog(
+                            "Order from \(taco.name)",
+                            isPresented: $showOrderSheet,
+                            titleVisibility: .visible
+                        ) {
+                            ForEach(availableOrderingApps, id: \.name) { option in
+                                Button(option.name) {
+                                    UIApplication.shared.open(option.bestURL)
+                                }
+                            }
+                        }
+                    } else {
+                        Text("Ordering not available")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
                             .frame(maxWidth: .infinity)
                             .padding()
-                            .background(Color.tacoGreen)
-                            .foregroundColor(.white)
+                            .background(Color(.systemGray6))
                             .cornerRadius(14)
                     }
 
@@ -258,11 +297,31 @@ struct TacoDetailView: View {
 
     func openDelivery() {
         HapticManager.impact(.medium)
-        DeliveryLinkHelper.openBestOption(
-            for: taco.name,
-            latitude: taco.latitude,
-            longitude: taco.longitude
-        )
+        let apps = availableOrderingApps
+
+        // Tier 2: 2+ apps installed — present a choice
+        if apps.count > 1 {
+            showOrderSheet = true
+            return
+        }
+
+        // Tier 2: exactly 1 app — open directly
+        if let single = apps.first {
+            UIApplication.shared.open(single.bestURL)
+            return
+        }
+
+        // Tier 3: no apps, but restaurant has a website
+        if let website = taco.website, let url = URL(string: website) {
+            UIApplication.shared.open(url)
+            return
+        }
+
+        // Tier 4: fall back to phone dialer
+        if let phone = taco.phone,
+           let url = URL(string: "tel:\(phone.replacingOccurrences(of: " ", with: ""))") {
+            UIApplication.shared.open(url)
+        }
     }
 }
 

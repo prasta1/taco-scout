@@ -91,7 +91,7 @@ struct TacoService {
         request.setValue(apiKey, forHTTPHeaderField: "X-Goog-Api-Key")
         // Field mask — only request fields we actually use (controls billing + payload size)
         request.setValue(
-            "places.id,places.displayName,places.location,places.rating,places.priceLevel,places.shortFormattedAddress,places.types,places.photos,places.regularOpeningHours",
+            "places.id,places.displayName,places.location,places.rating,places.priceLevel,places.shortFormattedAddress,places.types,places.photos,places.regularOpeningHours,places.nationalPhoneNumber,places.websiteUri",
             forHTTPHeaderField: "X-Goog-FieldMask"
         )
 
@@ -145,8 +145,8 @@ struct TacoService {
                                     weekdayText: apiHours.weekdayDescriptions ?? []
                                 )
                             },
-                            phone: nil,
-                            website: nil
+                            phone: place.nationalPhoneNumber,
+                            website: place.websiteUri
                         )
                     }
                     return tacos
@@ -283,6 +283,8 @@ struct PlaceNewResult: Codable {
     let types: [String]?
     let photos: [PlaceNewPhoto]?
     let regularOpeningHours: PlaceNewOpeningHours?
+    let nationalPhoneNumber: String?
+    let websiteUri: String?
 
     /// Convert the new API's string price level to an integer (1-3) for our model
     var priceLevelInt: Int {
