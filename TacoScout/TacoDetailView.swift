@@ -108,7 +108,7 @@ struct TacoDetailView: View {
                             // Stats Row
                             HStack(spacing: 20) {
                                 StatBadge(icon: "star.fill", value: String(format: "%.1f", taco.rating), color: .orange)
-                                StatBadge(icon: "dollarsign.circle.fill", value: taco.priceString, color: .tacoGreen)
+                                StatBadge(icon: "dollarsign.circle.fill", value: taco.priceString, color: .tacoPriceTeal)
                                 StatBadge(icon: "location.fill", value: "\(String(format: "%.1f", distance)) \(settingsManager.distanceUnit.abbreviation)", color: .blue)
                             }
                             
@@ -229,7 +229,6 @@ struct TacoDetailView: View {
                             }
                         }
                         
-                        Spacer(minLength: 100)
                     }
                     .padding()
                 }
@@ -240,8 +239,7 @@ struct TacoDetailView: View {
                 loadedReviews = await TacoService.fetchReviews(placeId: taco.id)
                 reviewsLoading = false
             }
-            .overlay(alignment: .bottom) {
-                // Floating Action Buttons
+            .safeAreaInset(edge: .bottom) {
                 HStack(spacing: 12) {
                     Button(action: openInMaps) {
                         Label("Directions", systemImage: "arrow.triangle.turn.up.right.diamond.fill")

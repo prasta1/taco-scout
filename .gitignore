@@ -4,6 +4,9 @@ Config/Secrets.xcconfig
 # Claude local settings
 .claude/
 
+# Poolside
+.poolside/
+
 # Xcode
 *.xcuserstate
 xcuserdata/

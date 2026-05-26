@@ -105,6 +105,7 @@ extension Color {
     static let tacoOrange = Color(red: 0.9, green: 0.5, blue: 0.1)
     static let tacoYellow = Color(red: 1.0, green: 0.85, blue: 0.3)
     static let tacoGreen = Color(red: 0.15, green: 0.65, blue: 0.3)
+    static let tacoPriceTeal = Color(red: 0.1, green: 0.55, blue: 0.55)
     static let tacoRed = Color(red: 0.9, green: 0.3, blue: 0.3)
     static let iconGrey = Color(red: 0.2, green: 0.2, blue: 0.2, opacity: 0.7)
 }
@@ -118,6 +119,7 @@ enum Layout {
 
     static let paddingContent: CGFloat = 16
     static let paddingOuter: CGFloat = 24
+    static let topControlsHeight: CGFloat = 56
 }
 
 // MARK: - Collection Safe Subscript

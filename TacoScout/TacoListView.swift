@@ -66,7 +66,7 @@ struct TacoListItemView: View {
                     Text(taco.priceString)
                         .font(.caption)
                         .fontWeight(.semibold)
-                        .foregroundColor(.tacoGreen)
+                        .foregroundColor(.tacoPriceTeal)
                     
                     Text(taco.cuisine)
                         .font(.caption)

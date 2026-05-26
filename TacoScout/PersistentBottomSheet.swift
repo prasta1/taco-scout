@@ -758,7 +758,7 @@ struct SelectedTacoSection: View {
                             Text(taco.priceString)
                                 .font(.caption2)
                                 .fontWeight(.semibold)
-                                .foregroundColor(.tacoGreen)
+                                .foregroundColor(.tacoPriceTeal)
                             Text(taco.cuisine)
                                 .font(.caption2)
                                 .foregroundColor(.secondary)

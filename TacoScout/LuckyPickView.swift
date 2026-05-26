@@ -50,7 +50,7 @@ struct LuckyPickView: View {
                             Text(taco.priceString)
                                 .font(.subheadline)
                                 .fontWeight(.semibold)
-                                .foregroundColor(.tacoGreen)
+                                .foregroundColor(.tacoPriceTeal)
 
                             Text("\(String(format: "%.1f", distance)) \(settingsManager.distanceUnit.abbreviation)")
                                 .font(.subheadline)

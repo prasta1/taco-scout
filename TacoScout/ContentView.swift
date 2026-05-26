@@ -708,7 +708,7 @@ struct SearchOverlayView: View {
                 .background(Color(.secondarySystemBackground))
                 .cornerRadius(Layout.radiusLarge)
                 .padding(.horizontal, Layout.paddingContent)
-                .padding(.top, 60)
+                .padding(.top, Layout.topControlsHeight)
 
                 // Results
                 if searchText.isEmpty {
@@ -815,7 +815,7 @@ struct SearchResultRow: View {
                     RatingBadge(rating: taco.rating)
                     Text(taco.priceString)
                         .font(.caption2)
-                        .foregroundColor(.tacoGreen)
+                        .foregroundColor(.tacoPriceTeal)
                         .fontWeight(.semibold)
                     Text(taco.cuisine)
                         .font(.caption2)
