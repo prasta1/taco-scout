@@ -102,11 +102,22 @@ struct ShimmerModifier: ViewModifier {
 // MARK: - Color Extensions
 
 extension Color {
-    static let tacoOrange = Color(red: 1.0, green: 0.6, blue: 0.2)
+    static let tacoOrange = Color(red: 0.9, green: 0.5, blue: 0.1)
     static let tacoYellow = Color(red: 1.0, green: 0.85, blue: 0.3)
-    static let tacoGreen = Color(red: 0.2, green: 0.8, blue: 0.4)
+    static let tacoGreen = Color(red: 0.15, green: 0.65, blue: 0.3)
     static let tacoRed = Color(red: 0.9, green: 0.3, blue: 0.3)
     static let iconGrey = Color(red: 0.2, green: 0.2, blue: 0.2, opacity: 0.7)
+}
+
+// MARK: - Layout Tokens
+
+enum Layout {
+    static let radiusSmall: CGFloat = 8
+    static let radiusMedium: CGFloat = 12
+    static let radiusLarge: CGFloat = 16
+
+    static let paddingContent: CGFloat = 16
+    static let paddingOuter: CGFloat = 24
 }
 
 // MARK: - Collection Safe Subscript

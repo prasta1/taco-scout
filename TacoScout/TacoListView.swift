@@ -34,7 +34,7 @@ struct TacoListItemView: View {
                     }
                 }
                 .frame(width: 60, height: 60)
-                .cornerRadius(10)
+                .cornerRadius(Layout.radiusMedium)
                 .clipped()
                 .highPriorityGesture(
                     TapGesture().onEnded {
@@ -44,7 +44,7 @@ struct TacoListItemView: View {
             } else {
                 PlaceholderImage(name: taco.name)
                     .frame(width: 60, height: 60)
-                    .cornerRadius(10)
+                    .cornerRadius(Layout.radiusMedium)
             }
             
             // Info
@@ -221,7 +221,7 @@ struct FloatingPhotoCarousel: View {
                 }
                 .tabViewStyle(.page(indexDisplayMode: .automatic))
                 .frame(width: UIScreen.main.bounds.width * 0.88, height: UIScreen.main.bounds.width * 0.66)
-                .clipShape(RoundedRectangle(cornerRadius: 14))
+                .clipShape(RoundedRectangle(cornerRadius: Layout.radiusLarge))
 
                 // Photo count
                 if taco.photos.count > 1 {

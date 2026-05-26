@@ -1,0 +1,16 @@
+devices([
+  "iPhone 16 Pro Max",   # 6.9" — required for App Store
+  "iPhone 8 Plus",       # 5.5" — required for legacy App Store support
+])
+
+languages(["en-US"])
+
+scheme("TacoScoutScreenshots")
+
+output_directory("./screenshots")
+
+clear_previous_screenshots(true)
+
+override_status_bar(true)
+
+stop_after_first_error(false)

@@ -112,6 +112,22 @@ struct SettingsView: View {
                                 .pickerStyle(.segmented)
                             }
 
+                            Button {
+                                HapticManager.notification(.warning)
+                                withAnimation { settingsManager.resetFilterDefaults() }
+                            } label: {
+                                HStack {
+                                    Image(systemName: "arrow.counterclockwise")
+                                    Text("Reset to Defaults")
+                                }
+                                .font(.subheadline)
+                                .fontWeight(.medium)
+                                .foregroundColor(.tacoRed)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 10)
+                                .background(Color.tacoRed.opacity(0.1), in: RoundedRectangle(cornerRadius: Layout.radiusSmall))
+                            }
+                            .buttonStyle(.plain)
                         }
                         .padding(.horizontal, 16)
                         .padding(.bottom, 16)

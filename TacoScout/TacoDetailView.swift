@@ -39,13 +39,6 @@ struct TacoDetailView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 0) {
-                    // Drag Bar
-                    Capsule()
-                        .fill(Color(.systemGray3))
-                        .frame(width: 36, height: 5)
-                        .padding(.top, 8)
-                        .padding(.bottom, 4)
-
                     // Photo Gallery
                     if !taco.photos.isEmpty {
                         PhotoGallery(photos: taco.photos, selectedIndex: $selectedPhotoIndex)
@@ -257,7 +250,7 @@ struct TacoDetailView: View {
                             .padding()
                             .background(Color.blue)
                             .foregroundColor(.white)
-                            .cornerRadius(14)
+                            .cornerRadius(Layout.radiusLarge)
                     }
 
                     if let config = orderButtonConfig {
@@ -268,7 +261,7 @@ struct TacoDetailView: View {
                                 .padding()
                                 .background(Color.tacoGreen)
                                 .foregroundColor(.white)
-                                .cornerRadius(14)
+                                .cornerRadius(Layout.radiusLarge)
                         }
                         .confirmationDialog(
                             "Order from \(taco.name)",
@@ -288,7 +281,7 @@ struct TacoDetailView: View {
                             .frame(maxWidth: .infinity)
                             .padding()
                             .background(Color(.systemGray6))
-                            .cornerRadius(14)
+                            .cornerRadius(Layout.radiusLarge)
                     }
 
                     Button(action: shareLocation) {
@@ -297,7 +290,7 @@ struct TacoDetailView: View {
                             .frame(width: 54, height: 54)
                             .background(Color(.systemGray5))
                             .foregroundColor(.primary)
-                            .cornerRadius(14)
+                            .cornerRadius(Layout.radiusLarge)
                     }
                 }
                 .padding()

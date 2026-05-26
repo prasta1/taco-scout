@@ -145,4 +145,12 @@ class SettingsManager: ObservableObject {
 
         HapticManager.enabled = haptics
     }
+
+    func resetFilterDefaults() {
+        searchRadius = .five
+        defaultSortOrder = .distance
+        defaultOpenNowOnly = false
+        defaultMinRating = 0
+        defaultPriceFilter = .any
+    }
 }

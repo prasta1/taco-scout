@@ -14,7 +14,6 @@ struct ContentView: View {
     @State private var selectedTaco: TacoLocation?
     @State private var showDetail = false
     @State private var showLuckyPick = false
-    @State private var triggerSearchFocus = false
     @State private var sheetDetent: SheetDetent = .half
     @State private var filter = FilterState()
     @State private var luckyTaco: TacoLocation?
@@ -249,7 +248,6 @@ struct ContentView: View {
             adManager: adManager,
             currentDetent: $sheetDetent,
             filter: $filter,
-            triggerSearchFocus: $triggerSearchFocus,
             onDetailsTap: {
                 HapticManager.impact(.medium)
                 showDetail = true
@@ -488,6 +486,17 @@ struct TopControlsBar: View {
 
             // Settings Button
             ControlButton(icon: "gearshape.fill", color: .tacoOrange, action: onSettingsTap)
+                .overlay(alignment: .topTrailing) {
+                    if activeFilterCount > 0 {
+                        Text("\(activeFilterCount)")
+                            .font(.caption2)
+                            .fontWeight(.bold)
+                            .foregroundColor(.white)
+                            .frame(width: 18, height: 18)
+                            .background(Color.tacoRed, in: Circle())
+                            .offset(x: 4, y: -4)
+                    }
+                }
         }
         .frame(maxWidth: 500)
     }
@@ -545,7 +554,6 @@ struct LoadingOverlay: View {
                 Text("🌮")
                     .font(.system(size: 60))
                     .rotationEffect(.degrees(isAnimating ? 10 : -10))
-                    .animation(.easeInOut(duration: 0.3).repeatForever(autoreverses: true), value: isAnimating)
 
                 Text(status.message)
                     .font(.headline)
@@ -558,10 +566,12 @@ struct LoadingOverlay: View {
             }
             .frame(width: 220)
             .padding(32)
-            .background(Color(.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 20))
+            .background(Color(.secondarySystemBackground), in: RoundedRectangle(cornerRadius: Layout.radiusLarge))
         }
         .onAppear {
-            isAnimating = true
+            withAnimation(.easeInOut(duration: 0.3).repeatForever(autoreverses: true)) {
+                isAnimating = true
+            }
         }
     }
 }
@@ -576,8 +586,7 @@ struct OpenBadge: View {
             .foregroundColor(.white)
             .padding(.horizontal, 6)
             .padding(.vertical, 2)
-            .background(Color.tacoGreen)
-            .cornerRadius(4)
+            .background(Color.tacoGreen, in: Capsule())
     }
 }
 
@@ -626,7 +635,7 @@ struct PhotoPreviewRow: View {
                         }
                     }
                     .frame(width: 70, height: 70)
-                    .cornerRadius(8)
+                    .cornerRadius(Layout.radiusMedium)
                     .clipped()
                 }
             }
@@ -697,8 +706,8 @@ struct SearchOverlayView: View {
                 .padding(.horizontal, 16)
                 .padding(.vertical, 12)
                 .background(Color(.secondarySystemBackground))
-                .cornerRadius(14)
-                .padding(.horizontal, 16)
+                .cornerRadius(Layout.radiusLarge)
+                .padding(.horizontal, Layout.paddingContent)
                 .padding(.top, 60)
 
                 // Results
@@ -743,8 +752,8 @@ struct SearchOverlayView: View {
                         }
                         .padding(.vertical, 8)
                         .background(Color(.secondarySystemBackground))
-                        .cornerRadius(14)
-                        .padding(.horizontal, 16)
+                        .cornerRadius(Layout.radiusLarge)
+                        .padding(.horizontal, Layout.paddingContent)
                         .padding(.top, 8)
                     }
                 }
@@ -822,7 +831,7 @@ struct SearchResultRow: View {
                 .fontWeight(.medium)
                 .foregroundColor(.secondary)
         }
-        .padding(.horizontal, 14)
+        .padding(.horizontal, Layout.paddingContent)
         .padding(.vertical, 10)
     }
 }

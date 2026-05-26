@@ -134,7 +134,7 @@ struct PriceButton: View {
                 .padding(.vertical, 12)
                 .background(isSelected ? Color.tacoOrange : Color(.systemGray5))
                 .foregroundColor(isSelected ? .white : .primary)
-                .cornerRadius(10)
+                .cornerRadius(Layout.radiusMedium)
         }
         .buttonStyle(.plain)
     }

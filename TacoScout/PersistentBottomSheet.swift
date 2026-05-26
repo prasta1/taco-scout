@@ -12,8 +12,14 @@ enum SheetDetent: CaseIterable {
         switch self {
         case .peek: return 260
         case .half: return UIScreen.main.bounds.height * 0.45
-        case .full: return UIScreen.main.bounds.height
+        case .full: return UIScreen.main.bounds.height - SheetDetent.topOffset
         }
+    }
+
+    private static var topOffset: CGFloat {
+        let safeTop = (UIApplication.shared.connectedScenes.first as? UIWindowScene)?
+            .keyWindow?.safeAreaInsets.top ?? 59
+        return safeTop + 56
     }
 
     static func nearest(to height: CGFloat, velocity: CGFloat) -> SheetDetent {
@@ -261,33 +267,20 @@ struct PersistentBottomSheet: View {
     @ObservedObject var adManager: AdManager
     @Binding var currentDetent: SheetDetent
     @Binding var filter: FilterState
-    @Binding var triggerSearchFocus: Bool
     let onDetailsTap: () -> Void
     let onMapCenter: (CLLocationCoordinate2D) -> Void
     var onRefresh: (() async -> Void)? = nil
     @EnvironmentObject var settingsManager: SettingsManager
     @Environment(\.verticalSizeClass) var verticalSizeClass
 
-    @State private var searchText = ""
     @State private var showFavoritesOnly = false
     @State private var carouselTaco: TacoLocation?
-    @FocusState private var isSearchFocused: Bool
 
     var filteredTacos: [TacoLocation] {
-        var result = tacos
-
         if showFavoritesOnly {
-            result = result.filter { favoritesManager.isFavorite($0) }
+            return tacos.filter { favoritesManager.isFavorite($0) }
         }
-
-        if !searchText.isEmpty {
-            result = result.filter {
-                $0.name.localizedCaseInsensitiveContains(searchText) ||
-                $0.cuisine.localizedCaseInsensitiveContains(searchText)
-            }
-        }
-
-        return result
+        return tacos
     }
 
     /// Tacos to show in the list — excludes the selected taco since it's shown in the card above.
@@ -332,12 +325,6 @@ struct PersistentBottomSheet: View {
                 }
             }
         }
-        .onChange(of: triggerSearchFocus) { _, newValue in
-            if newValue {
-                isSearchFocused = true
-                triggerSearchFocus = false
-            }
-        }
     }
 
     // MARK: - Landscape Side Panel
@@ -346,11 +333,7 @@ struct PersistentBottomSheet: View {
         GeometryReader { _ in
             VStack(spacing: 0) {
                 // HEADER (no drag handle in landscape)
-                SheetHeader(
-                    tacoCount: filteredTacos.count,
-                    searchText: $searchText,
-                    isSearchFocused: $isSearchFocused
-                )
+                SheetHeader(tacoCount: filteredTacos.count)
                 .padding(.horizontal, 16)
                 .padding(.top, 16)
                 .padding(.bottom, 8)
@@ -380,11 +363,11 @@ struct PersistentBottomSheet: View {
                     favoritesCount: tacos.filter { favoritesManager.isFavorite($0) }.count,
                     hasActiveFilters: hasActiveFilters
                 )
-                .padding(.horizontal, 12)
+                .padding(.horizontal, Layout.paddingContent)
                 .padding(.vertical, 8)
 
                 Divider()
-                    .padding(.horizontal, 12)
+                    .padding(.horizontal, Layout.paddingContent)
 
                 // LIST — always scrollable in landscape
                 if listTacos.isEmpty && selectedTaco == nil {
@@ -458,11 +441,7 @@ struct PersistentBottomSheet: View {
                 HandleBar()
                     .padding(.top, 10)
 
-                SheetHeader(
-                    tacoCount: filteredTacos.count,
-                    searchText: $searchText,
-                    isSearchFocused: $isSearchFocused
-                )
+                SheetHeader(tacoCount: filteredTacos.count)
             }
             .padding(.horizontal, 16)
             .padding(.bottom, 4)
@@ -492,7 +471,7 @@ struct PersistentBottomSheet: View {
                 favoritesCount: tacos.filter { favoritesManager.isFavorite($0) }.count,
                 hasActiveFilters: hasActiveFilters
             )
-            .padding(.horizontal, 12)
+            .padding(.horizontal, Layout.paddingContent)
             .padding(.vertical, 6)
 
             Divider()
@@ -522,7 +501,7 @@ struct PersistentBottomSheet: View {
                                     }
                                 }
                             )
-                            .padding(.horizontal, 20)
+                            .padding(.horizontal, Layout.paddingContent)
                             .contentShape(Rectangle())
                             .onTapGesture {
                                 HapticManager.selection()
@@ -537,14 +516,14 @@ struct PersistentBottomSheet: View {
 
                             if taco.id != listTacos.last?.id {
                                 Divider()
-                                    .padding(.leading, 92)
+                                    .padding(.leading, 88)
                             }
 
                             // Insert native ad after every 5th item
                             if (index + 1) % 5 == 0, let ad = adManager.loadedAds[safe: (index + 1) / 5 - 1] {
                                 AdNativeView(nativeAd: ad)
                                     .frame(height: 120)
-                                    .padding(.horizontal, 20)
+                                    .padding(.horizontal, Layout.paddingContent)
                                     .padding(.vertical, 8)
                             }
                         }
@@ -599,38 +578,15 @@ struct HandleBar: View {
 
 struct SheetHeader: View {
     let tacoCount: Int
-    @Binding var searchText: String
-    var isSearchFocused: FocusState<Bool>.Binding
 
     var body: some View {
-        VStack(spacing: 8) {
-            HStack {
-                Text("\(tacoCount) nearby")
-                    .font(.subheadline)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.secondary)
+        HStack {
+            Text("\(tacoCount) nearby")
+                .font(.subheadline)
+                .fontWeight(.semibold)
+                .foregroundColor(.secondary)
 
-                Spacer()
-            }
-
-            HStack {
-                Image(systemName: "magnifyingglass")
-                    .foregroundColor(.secondary)
-                TextField("Search tacos...", text: $searchText)
-                    .textFieldStyle(.plain)
-                    .focused(isSearchFocused)
-                if !searchText.isEmpty {
-                    Button {
-                        searchText = ""
-                    } label: {
-                        Image(systemName: "xmark.circle.fill")
-                            .foregroundColor(.secondary)
-                    }
-                    .buttonStyle(.plain)
-                }
-            }
-            .padding(8)
-            .background(Color(.systemGray6), in: RoundedRectangle(cornerRadius: 8))
+            Spacer()
         }
     }
 }
@@ -788,7 +744,7 @@ struct SelectedTacoSection: View {
                     VStack(alignment: .leading, spacing: 5) {
                         HStack(spacing: 6) {
                             Text(taco.name)
-                                .font(.subheadline)
+                                .font(.headline)
                                 .fontWeight(.bold)
                                 .lineLimit(1)
 
@@ -886,8 +842,8 @@ struct SelectedTacoSection: View {
             }
             .padding(12)
             .background(Color(.secondarySystemBackground))
-            .cornerRadius(14)
-            .padding(.horizontal, 12)
+            .cornerRadius(Layout.radiusLarge)
+            .padding(.horizontal, Layout.paddingContent)
             .padding(.vertical, 6)
         }
     }

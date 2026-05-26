@@ -71,7 +71,7 @@ struct LuckyPickView: View {
             .frame(maxWidth: .infinity)
             .padding(.vertical, 32)
             .background(Color(.systemGray6))
-            .cornerRadius(20)
+            .cornerRadius(Layout.radiusLarge)
 
             // Action Buttons
             if isRevealed {
@@ -91,7 +91,7 @@ struct LuckyPickView: View {
                         .padding()
                         .background(Color(.systemGray5))
                         .foregroundColor(.primary)
-                        .cornerRadius(14)
+                        .cornerRadius(Layout.radiusLarge)
                     }
 
                     Button(action: {
@@ -107,7 +107,7 @@ struct LuckyPickView: View {
                         .padding()
                         .background(Color.tacoOrange)
                         .foregroundColor(.white)
-                        .cornerRadius(14)
+                        .cornerRadius(Layout.radiusLarge)
                     }
                 }
                 .transition(.move(edge: .bottom).combined(with: .opacity))
@@ -115,7 +115,7 @@ struct LuckyPickView: View {
 
             Spacer()
         }
-        .padding(24)
+        .padding(Layout.paddingOuter)
     }
 
     private func spinAndReveal() {
