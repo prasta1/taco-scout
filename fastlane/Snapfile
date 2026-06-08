@@ -1,6 +1,6 @@
 devices([
-  "iPhone 16 Pro Max",   # 6.9" — required for App Store
-  "iPhone 8 Plus",       # 5.5" — required for legacy App Store support
+  "iPhone 11 Pro Max",       # 6.5" — App Store display class
+  "iPad Pro 13-inch (M4)",   # 13" iPad — App Store display class
 ])
 
 languages(["en-US"])
