@@ -8,27 +8,29 @@ enum SheetDetent: CaseIterable {
     case half
     case full
 
-    var height: CGFloat {
+    /// Height the sheet occupies for a given container.
+    /// Pass the actual container height and safe-area top inset (read via GeometryReader
+    /// or UIView.bounds) — never UIScreen.main, which breaks on iPad multi-window.
+    func height(in containerHeight: CGFloat, safeAreaTop: CGFloat) -> CGFloat {
         switch self {
         case .peek: return 260
-        case .half: return UIScreen.main.bounds.height * 0.45
-        case .full: return UIScreen.main.bounds.height - SheetDetent.topOffset
+        case .half: return containerHeight * 0.45
+        case .full: return containerHeight - (safeAreaTop + 56)
         }
     }
 
-    private static var topOffset: CGFloat {
-        let safeTop = (UIApplication.shared.connectedScenes.first as? UIWindowScene)?
-            .keyWindow?.safeAreaInsets.top ?? 59
-        return safeTop + 56
-    }
-
-    static func nearest(to height: CGFloat, velocity: CGFloat) -> SheetDetent {
+    static func nearest(
+        to height: CGFloat,
+        velocity: CGFloat,
+        containerHeight: CGFloat,
+        safeAreaTop: CGFloat
+    ) -> SheetDetent {
         let cases = SheetDetent.allCases
         let velocityThreshold: CGFloat = 300
 
         if abs(velocity) > velocityThreshold {
             let currentIndex = cases.firstIndex(where: {
-                abs($0.height - height) < UIScreen.main.bounds.height * 0.2
+                abs($0.height(in: containerHeight, safeAreaTop: safeAreaTop) - height) < containerHeight * 0.2
             }) ?? 0
             if velocity < 0 {
                 return cases[min(currentIndex + 1, cases.count - 1)]
@@ -38,7 +40,9 @@ enum SheetDetent: CaseIterable {
         }
 
         return cases.min(by: {
-            abs($0.height - height) < abs($1.height - height)
+            let h0 = $0.height(in: containerHeight, safeAreaTop: safeAreaTop)
+            let h1 = $1.height(in: containerHeight, safeAreaTop: safeAreaTop)
+            return abs(h0 - height) < abs(h1 - height)
         }) ?? .peek
     }
 }
@@ -97,11 +101,14 @@ class BottomSheetHostController: UIViewController, UIGestureRecognizerDelegate {
     private(set) var isDragging = false
     private var dragStartY: CGFloat = 0
 
-    private let screenHeight = UIScreen.main.bounds.height
+    /// Container height — derived from the controller's own view, not UIScreen.main,
+    /// so it's correct in iPad multi-window / Split View.
+    private var containerHeight: CGFloat { view.bounds.height }
+    private var safeAreaTop: CGFloat { view.safeAreaInsets.top }
 
     /// The Y origin for a given detent (distance from top of screen)
     private func yOrigin(for detent: SheetDetent) -> CGFloat {
-        screenHeight - detent.height
+        containerHeight - detent.height(in: containerHeight, safeAreaTop: safeAreaTop)
     }
 
     init(rootContent: AnyView, detent: SheetDetent, onDetentChange: @escaping (SheetDetent) -> Void) {
@@ -143,7 +150,7 @@ class BottomSheetHostController: UIViewController, UIGestureRecognizerDelegate {
         let y = yOrigin(for: currentDetent)
         hostingController.view.frame = CGRect(
             x: 0, y: y,
-            width: view.bounds.width, height: screenHeight
+            width: view.bounds.width, height: containerHeight
         )
     }
 
@@ -199,8 +206,13 @@ class BottomSheetHostController: UIViewController, UIGestureRecognizerDelegate {
             isDragging = false
             let velocity = gesture.velocity(in: view).y
             let currentY = hostingController.view.frame.origin.y
-            let currentHeight = screenHeight - currentY
-            let newDetent = SheetDetent.nearest(to: currentHeight, velocity: velocity)
+            let currentHeight = containerHeight - currentY
+            let newDetent = SheetDetent.nearest(
+                to: currentHeight,
+                velocity: velocity,
+                containerHeight: containerHeight,
+                safeAreaTop: safeAreaTop
+            )
             currentDetent = newDetent
             let targetY = yOrigin(for: newDetent)
 
@@ -538,8 +550,7 @@ struct PersistentBottomSheet: View {
 
             Spacer(minLength: 0)
         }
-        .frame(height: UIScreen.main.bounds.height)
-        .frame(maxWidth: .infinity)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color(.systemBackground))
         .clipShape(
             UnevenRoundedRectangle(

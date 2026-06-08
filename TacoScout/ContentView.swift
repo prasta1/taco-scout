@@ -144,24 +144,30 @@ struct ContentView: View {
     // MARK: - Portrait Layout (Bottom Sheet)
 
     private var portraitLayout: some View {
-        ZStack {
-            mapLayer(bottomInset: sheetDetent.height, leadingInset: 0)
+        GeometryReader { proxy in
+            let containerHeight = proxy.size.height + proxy.safeAreaInsets.top + proxy.safeAreaInsets.bottom
+            let safeAreaTop = proxy.safeAreaInsets.top
+            let detentHeight = sheetDetent.height(in: containerHeight, safeAreaTop: safeAreaTop)
 
-            // Zoom Controls (Bottom Right) — track the sheet so they don't get obscured
-            VStack {
-                Spacer()
-                HStack {
+            ZStack {
+                mapLayer(bottomInset: detentHeight, leadingInset: 0)
+
+                // Zoom Controls (Bottom Right) — track the sheet so they don't get obscured
+                VStack {
                     Spacer()
-                    zoomButtons
-                        .padding(.trailing)
-                        .padding(.bottom, sheetDetent.height + 12)
+                    HStack {
+                        Spacer()
+                        zoomButtons
+                            .padding(.trailing)
+                            .padding(.bottom, detentHeight + 12)
+                    }
                 }
-            }
-            .animation(.smooth, value: sheetDetent)
+                .animation(.smooth, value: sheetDetent)
 
-            // Bottom Sheet
-            if let userLocation = effectiveUserLocation, !tacos.isEmpty {
-                bottomSheet(userLocation: userLocation)
+                // Bottom Sheet
+                if let userLocation = effectiveUserLocation, !tacos.isEmpty {
+                    bottomSheet(userLocation: userLocation)
+                }
             }
         }
     }
