@@ -9,240 +9,106 @@ struct SettingsView: View {
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: 16) {
-                    // Branded header
-                    VStack(spacing: 6) {
-                        Text("🌮")
-                            .font(.system(size: 72))
-                            .shadow(color: .black.opacity(0.1), radius: 4, y: 2)
-                        Text("TacoScout")
-                            .font(.title)
-                            .fontWeight(.bold)
-                        Text("Version \(appVersion)")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 24)
-                    .background(
-                        LinearGradient(
-                            colors: [Color.tacoOrange.opacity(0.12), Color.clear],
-                            startPoint: .top,
-                            endPoint: .bottom
-                        )
-                    )
-
-                    // ── Taco Radar Card ──
-                    VStack(alignment: .leading, spacing: 0) {
-                        // Orange accent stripe
-                        RoundedRectangle(cornerRadius: 2)
-                            .fill(Color.tacoOrange)
-                            .frame(height: 3)
-                            .padding(.horizontal, 24)
-                            .padding(.top, 8)
-
-                        // ── Taco Radar ──
-                        SectionHeader(emoji: "🛰️", title: "Dial In Your Taco Radar")
-                            .padding(.horizontal, 16)
-                            .padding(.top, 12)
-                            .padding(.bottom, 8)
-
-                        VStack(alignment: .leading, spacing: 14) {
-                            // Open Now
-                            Toggle(isOn: $settingsManager.defaultOpenNowOnly) {
-                                SettingsLabel("Open Now Only", icon: "clock")
-                            }
-                            .tint(.tacoOrange)
-
-                            // Search Radius
-                            VStack(alignment: .leading, spacing: 6) {
-                                SettingsLabel("Search Radius", icon: "location.circle")
-                                Picker("Search Radius", selection: $settingsManager.searchRadius) {
-                                    ForEach(SearchRadius.allCases) { radius in
-                                        Text(radius.label(unit: settingsManager.distanceUnit)).tag(radius)
-                                    }
-                                }
-                                .pickerStyle(.segmented)
-                            }
-
-                            // Distance Units
-                            VStack(alignment: .leading, spacing: 6) {
-                                SettingsLabel("Distance Units", icon: "ruler")
-                                Picker("Distance Units", selection: $settingsManager.distanceUnit) {
-                                    ForEach(DistanceUnit.allCases) { unit in
-                                        Text(unit.rawValue).tag(unit)
-                                    }
-                                }
-                                .pickerStyle(.segmented)
-                            }
-
-                            // Default Sort
-                            VStack(alignment: .leading, spacing: 6) {
-                                SettingsLabel("Default Sort", icon: "arrow.up.arrow.down")
-                                Picker("Default Sort", selection: $settingsManager.defaultSortOrder) {
-                                    ForEach(SortOption.allCases) { option in
-                                        Text(option.rawValue).tag(option)
-                                    }
-                                }
-                                .pickerStyle(.segmented)
-                            }
-
-                            // Min Rating
-                            VStack(alignment: .leading, spacing: 6) {
-                                SettingsLabel("Min Rating", icon: "star.fill")
-                                Picker("Min Rating", selection: $settingsManager.defaultMinRating) {
-                                    Text("Any").tag(0.0)
-                                    Text("3+").tag(3.0)
-                                    Text("3.5+").tag(3.5)
-                                    Text("4+").tag(4.0)
-                                    Text("4.5+").tag(4.5)
-                                }
-                                .pickerStyle(.segmented)
-                            }
-
-                            // Price Range
-                            VStack(alignment: .leading, spacing: 6) {
-                                SettingsLabel("Price Range", icon: "dollarsign.circle")
-                                Picker("Price Range", selection: $settingsManager.defaultPriceFilter) {
-                                    ForEach(PriceFilter.allCases) { price in
-                                        Text(price.label).tag(price)
-                                    }
-                                }
-                                .pickerStyle(.segmented)
-                            }
-
-                            Button {
-                                HapticManager.notification(.warning)
-                                withAnimation { settingsManager.resetFilterDefaults() }
-                            } label: {
-                                HStack {
-                                    Image(systemName: "arrow.counterclockwise")
-                                    Text("Reset to Defaults")
-                                }
-                                .font(.subheadline)
-                                .fontWeight(.medium)
-                                .foregroundColor(.tacoRed)
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 10)
-                                .background(Color.tacoRed.opacity(0.1), in: RoundedRectangle(cornerRadius: Layout.radiusSmall))
-                            }
-                            .buttonStyle(.plain)
-                        }
-                        .padding(.horizontal, 16)
-                        .padding(.bottom, 16)
-                    }
-                    .background(Color(.systemBackground), in: RoundedRectangle(cornerRadius: 12))
-                    .shadow(color: .black.opacity(0.08), radius: 8, y: 2)
-                    .padding(.horizontal, 16)
-
-                    // ── General Settings & About ──
-                    VStack(alignment: .leading, spacing: 0) {
-                        // Orange accent stripe
-                        RoundedRectangle(cornerRadius: 2)
-                            .fill(Color.tacoOrange)
-                            .frame(height: 3)
-                            .padding(.horizontal, 24)
-                            .padding(.top, 8)
-
-                        SectionHeader(emoji: "🪖", title: "General Settings")
-                            .padding(.horizontal, 16)
-                            .padding(.top, 12)
-                            .padding(.bottom, 8)
-
-                        VStack(alignment: .leading, spacing: 14) {
-                            Toggle(isOn: $settingsManager.hapticsEnabled) {
-                                SettingsLabel("Haptic Feedback", icon: "iphone.radiowaves.left.and.right")
-                            }
-                            .tint(.tacoOrange)
-
-                            Toggle(isOn: $settingsManager.soundsEnabled) {
-                                SettingsLabel("In-App Sounds", icon: "speaker.wave.2")
-                            }
-                            .tint(.tacoOrange)
-
-                            Button {
-                                UserDefaults.standard.set(false, forKey: "hasSeenOnboarding")
-                                showOnboarding = true
-                                dismiss()
-                            } label: {
-                                SettingsLabel("Re-show Onboarding", icon: "book.pages")
-                            }
-
-                            Link(destination: URL(string: "https://github.com/prasta1")!) {
-                                HStack {
-                                    SettingsLabel("About the Developer", icon: "person.crop.circle")
-                                    Spacer()
-                                    Image(systemName: "arrow.up.right.square")
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
-                                }
-                            }
-                        }
-                        .padding(.horizontal, 16)
-                        .padding(.bottom, 16)
-                    }
-                    .background(Color(.systemBackground), in: RoundedRectangle(cornerRadius: 12))
-                    .shadow(color: .black.opacity(0.08), radius: 8, y: 2)
-                    .padding(.horizontal, 16)
-
-                    // ── Feedback & Ideas ──
-                    VStack(alignment: .leading, spacing: 0) {
-                        RoundedRectangle(cornerRadius: 2)
-                            .fill(Color.tacoOrange)
-                            .frame(height: 3)
-                            .padding(.horizontal, 24)
-                            .padding(.top, 8)
-
-                        SectionHeader(emoji: "💬", title: "Feedback & Ideas")
-                            .padding(.horizontal, 16)
-                            .padding(.top, 12)
-                            .padding(.bottom, 8)
-
-                        VStack(alignment: .leading, spacing: 14) {
-                            Button(action: { openEmail(subject: "TacoScout Bug Report", body: bugReportBody) }) {
-                                HStack {
-                                    SettingsLabel("Report a Bug", icon: "ladybug")
-                                    Spacer()
-                                    Image(systemName: "arrow.up.right.square")
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
-                                }
-                            }
-
-                            Button(action: { openEmail(subject: "TacoScout Feature Request", body: featureRequestBody) }) {
-                                HStack {
-                                    SettingsLabel("Request a Feature", icon: "lightbulb")
-                                    Spacer()
-                                    Image(systemName: "arrow.up.right.square")
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
-                                }
-                            }
-
-                            Button(action: requestAppReview) {
-                                HStack {
-                                    SettingsLabel("Rate TacoScout", icon: "star.bubble")
-                                    Spacer()
-                                    Image(systemName: "heart.fill")
-                                        .font(.caption)
-                                        .foregroundColor(.tacoOrange)
-                                }
-                            }
-                        }
-                        .padding(.horizontal, 16)
-                        .padding(.bottom, 16)
-                    }
-                    .background(Color(.systemBackground), in: RoundedRectangle(cornerRadius: 12))
-                    .shadow(color: .black.opacity(0.08), radius: 8, y: 2)
-                    .padding(.horizontal, 16)
+            Form {
+                // Compact brand mark
+                Section {
+                    Text("🌮")
+                        .font(.system(size: 48))
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .listRowBackground(Color.clear)
+                        .listRowSeparator(.hidden)
+                        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                        .padding(.top, -16)
                 }
-                .padding(.bottom, 20)
+                .listSectionSpacing(.compact)
+
+                // Filter defaults
+                Section("Filter Defaults") {
+                    Toggle("Open Now Only", isOn: $settingsManager.defaultOpenNowOnly)
+
+                    Picker("Search Radius", selection: $settingsManager.searchRadius) {
+                        ForEach(SearchRadius.allCases) { radius in
+                            Text(radius.label(unit: settingsManager.distanceUnit)).tag(radius)
+                        }
+                    }
+
+                    Picker("Distance Units", selection: $settingsManager.distanceUnit) {
+                        ForEach(DistanceUnit.allCases) { unit in
+                            Text(unit.rawValue).tag(unit)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+
+                    Picker("Sort By", selection: $settingsManager.defaultSortOrder) {
+                        ForEach(SortOption.allCases) { option in
+                            Text(option.rawValue).tag(option)
+                        }
+                    }
+
+                    Picker("Minimum Rating", selection: $settingsManager.defaultMinRating) {
+                        Text("Any").tag(0.0)
+                        Text("3+").tag(3.0)
+                        Text("3.5+").tag(3.5)
+                        Text("4+").tag(4.0)
+                        Text("4.5+").tag(4.5)
+                    }
+
+                    Picker("Price Range", selection: $settingsManager.defaultPriceFilter) {
+                        ForEach(PriceFilter.allCases) { price in
+                            Text(price.label).tag(price)
+                        }
+                    }
+
+                    Button("Reset to Defaults", role: .destructive) {
+                        HapticManager.notification(.warning)
+                        withAnimation { settingsManager.resetFilterDefaults() }
+                    }
+                }
+
+                // General preferences
+                Section("General") {
+                    Toggle("Haptic Feedback", isOn: $settingsManager.hapticsEnabled)
+                    Toggle("In-App Sounds", isOn: $settingsManager.soundsEnabled)
+
+                    Button("Re-show Onboarding") {
+                        UserDefaults.standard.set(false, forKey: "hasSeenOnboarding")
+                        showOnboarding = true
+                        dismiss()
+                    }
+
+                    Link(destination: URL(string: "https://github.com/prasta1")!) {
+                        HStack {
+                            Text("About the Developer")
+                            Spacer()
+                            Image(systemName: "arrow.up.right.square")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+
+                // Feedback
+                Section {
+                    Button("Report a Bug") {
+                        openEmail(subject: "TacoScout Bug Report", body: bugReportBody)
+                    }
+                    Button("Request a Feature") {
+                        openEmail(subject: "TacoScout Feature Request", body: featureRequestBody)
+                    }
+                    Button("Rate TacoScout", action: requestAppReview)
+                } header: {
+                    Text("Feedback")
+                } footer: {
+                    Text("TacoScout · Version \(appVersion)")
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .padding(.top, 4)
+                }
             }
+            .tint(.tacoOrange)
             .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .topBarTrailing) {
                     Button("Done") { dismiss() }
                 }
             }
@@ -260,20 +126,20 @@ struct SettingsView: View {
 
     private var bugReportBody: String {
         """
-        
+
         --- Please describe the bug below ---
-        
+
         What happened:
-        
-        
+
+
         What I expected:
-        
-        
+
+
         Steps to reproduce:
-        1. 
-        2. 
-        3. 
-        
+        1.
+        2.
+        3.
+
         ---
         App Version: \(appVersion)
         iOS: \(UIDevice.current.systemVersion)
@@ -283,15 +149,15 @@ struct SettingsView: View {
 
     private var featureRequestBody: String {
         """
-        
+
         --- Describe your idea below ---
-        
+
         What I'd love to see:
-        
-        
+
+
         Why it would be useful:
-        
-        
+
+
         ---
         App Version: \(appVersion)
         """
@@ -316,56 +182,6 @@ struct SettingsView: View {
     private func requestAppReview() {
         guard let scene = UIApplication.shared.connectedScenes.first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene else { return }
         AppStore.requestReview(in: scene)
-    }
-}
-
-// MARK: - Reusable Components
-
-/// Bold, prominent section header with an emoji or SF Symbol to visually anchor each group.
-private struct SectionHeader: View {
-    var emoji: String?
-    var icon: String?
-    let title: String
-
-    var body: some View {
-        HStack(spacing: 6) {
-            if let emoji {
-                Text(emoji)
-                    .font(.system(size: 16))
-            } else if let icon {
-                Image(systemName: icon)
-                    .font(.system(size: 12, weight: .semibold))
-                    .foregroundColor(.tacoOrange)
-            }
-            Text(title)
-                .font(.subheadline)
-                .fontWeight(.semibold)
-                .foregroundColor(.primary)
-        }
-        .textCase(nil)
-        .padding(.bottom, 2)
-    }
-}
-
-/// Settings row label with an orange icon and secondary text.
-private struct SettingsLabel: View {
-    let text: String
-    let icon: String
-
-    init(_ text: String, icon: String) {
-        self.text = text
-        self.icon = icon
-    }
-
-    var body: some View {
-        HStack(spacing: 6) {
-            Image(systemName: icon)
-                .foregroundColor(.tacoOrange)
-                .font(.subheadline)
-            Text(text)
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-        }
     }
 }
 
