@@ -12,7 +12,6 @@ struct ContentView: View {
     @State private var tacos: [TacoLocation] = []
     @State private var selectedTaco: TacoLocation?
     @State private var showDetail = false
-    @State private var showLuckyPick = false
     @State private var sheetDetent: SheetDetent = .half
     @State private var filter = FilterState()
     @State private var luckyTaco: TacoLocation?
@@ -302,13 +301,13 @@ struct ContentView: View {
             )
             .padding(.horizontal)
             .padding(.vertical, 8)
-            .sheet(isPresented: $showLuckyPick) {
+            .sheet(item: $luckyTaco) { taco in
                 LuckyPickView(
-                    taco: $luckyTaco,
+                    taco: taco,
                     userLocation: effectiveUserLocation ?? CLLocationCoordinate2D(latitude: 0, longitude: 0),
-                    onSelect: { taco in
-                        showLuckyPick = false
-                        selectedTaco = taco
+                    onSelect: { picked in
+                        luckyTaco = nil
+                        selectedTaco = picked
                     },
                     onReroll: pickLuckyTaco
                 )
@@ -435,7 +434,6 @@ struct ContentView: View {
         HapticManager.notification(.success)
         SoundManager.playLuckySound()
         luckyTaco = pick
-        showLuckyPick = true
     }
     
     func checkOnboarding() {

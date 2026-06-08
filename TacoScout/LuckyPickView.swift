@@ -2,7 +2,7 @@ import SwiftUI
 import MapKit
 
 struct LuckyPickView: View {
-    @Binding var taco: TacoLocation?
+    let taco: TacoLocation
     let userLocation: CLLocationCoordinate2D
     let onSelect: (TacoLocation) -> Void
     let onReroll: () -> Void
@@ -13,13 +13,6 @@ struct LuckyPickView: View {
     @State private var rollCount: Int = 0
 
     var body: some View {
-        if let taco = taco {
-            content(for: taco)
-        }
-    }
-
-    @ViewBuilder
-    private func content(for taco: TacoLocation) -> some View {
         let distance = DistanceCalculator.distance(from: userLocation, to: taco.coordinate, unit: settingsManager.distanceUnit)
 
         VStack(spacing: 24) {
@@ -118,6 +111,7 @@ struct LuckyPickView: View {
         .padding(Layout.paddingOuter)
     }
 
+
     private func spinAndReveal() {
         rollCount += 1
         withAnimation(.easeInOut(duration: 0.6)) {
@@ -132,26 +126,25 @@ struct LuckyPickView: View {
 }
 
 #Preview {
-    @Previewable @State var previewTaco: TacoLocation? = TacoLocation(
-        id: "1",
-        name: "El Farolito",
-        latitude: 37.7527,
-        longitude: -122.4180,
-        cuisine: "Mexican Street Tacos",
-        rating: 4.8,
-        address: "2779 Mission St, San Francisco",
-        priceLevel: 1,
-        photos: [],
-        reviews: [],
-        hours: nil,
-        phone: nil,
-        website: nil
-    )
-
     LuckyPickView(
-        taco: $previewTaco,
+        taco: TacoLocation(
+            id: "1",
+            name: "El Farolito",
+            latitude: 37.7527,
+            longitude: -122.4180,
+            cuisine: "Mexican Street Tacos",
+            rating: 4.8,
+            address: "2779 Mission St, San Francisco",
+            priceLevel: 1,
+            photos: [],
+            reviews: [],
+            hours: nil,
+            phone: nil,
+            website: nil
+        ),
         userLocation: CLLocationCoordinate2D(latitude: 37.7749, longitude: -122.4194),
         onSelect: { _ in },
         onReroll: {}
     )
+    .environment(SettingsManager())
 }
