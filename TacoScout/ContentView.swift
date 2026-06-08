@@ -12,7 +12,6 @@ struct ContentView: View {
     @State private var tacos: [TacoLocation] = []
     @State private var selectedTaco: TacoLocation?
     @State private var showDetail = false
-    @State private var showLuckyPick = false
     @State private var sheetDetent: SheetDetent = .half
     @State private var filter = FilterState()
     @State private var luckyTaco: TacoLocation?
@@ -23,13 +22,17 @@ struct ContentView: View {
     @State private var refreshTask: Task<Void, Never>?
     @State private var loadingStatus: LoadingStatus = .locating
     @State private var lastSearchedLocation: CLLocationCoordinate2D?
+    @State private var filteredTacos: [TacoLocation] = []
     @Environment(\.verticalSizeClass) var verticalSizeClass
 
     private let debugLocationOverride: CLLocationCoordinate2D? = nil
 
-    var filteredTacos: [TacoLocation] {
-        guard let userLocation = effectiveUserLocation else { return [] }
-        return TacoService.filtered(tacos: tacos, with: filter, from: userLocation)
+    private func recomputeFilteredTacos() {
+        guard let userLocation = effectiveUserLocation else {
+            filteredTacos = []
+            return
+        }
+        filteredTacos = TacoService.filtered(tacos: tacos, with: filter, from: userLocation)
     }
     
     var activeFilterCount: Int {
@@ -127,6 +130,10 @@ struct ContentView: View {
             filter.maxDistance = Double(newValue.rawValue)
             refetchTacos()
         }
+        .onChange(of: tacos) { _, _ in recomputeFilteredTacos() }
+        .onChange(of: filter) { _, _ in recomputeFilteredTacos() }
+        .onChange(of: locationManager.userLocation?.latitude) { _, _ in recomputeFilteredTacos() }
+        .onChange(of: locationManager.userLocation?.longitude) { _, _ in recomputeFilteredTacos() }
         .onOpenURL { url in
             if url.scheme == "tacoscout" && url.host == "lucky" {
                 pickLuckyTaco()
@@ -137,24 +144,30 @@ struct ContentView: View {
     // MARK: - Portrait Layout (Bottom Sheet)
 
     private var portraitLayout: some View {
-        ZStack {
-            mapLayer(bottomInset: sheetDetent.height, leadingInset: 0)
+        GeometryReader { proxy in
+            let containerHeight = proxy.size.height + proxy.safeAreaInsets.top + proxy.safeAreaInsets.bottom
+            let safeAreaTop = proxy.safeAreaInsets.top
+            let detentHeight = sheetDetent.height(in: containerHeight, safeAreaTop: safeAreaTop)
 
-            // Zoom Controls (Bottom Right) — track the sheet so they don't get obscured
-            VStack {
-                Spacer()
-                HStack {
+            ZStack {
+                mapLayer(bottomInset: detentHeight, leadingInset: 0)
+
+                // Zoom Controls (Bottom Right) — track the sheet so they don't get obscured
+                VStack {
                     Spacer()
-                    zoomButtons
-                        .padding(.trailing)
-                        .padding(.bottom, sheetDetent.height + 12)
+                    HStack {
+                        Spacer()
+                        zoomButtons
+                            .padding(.trailing)
+                            .padding(.bottom, detentHeight + 12)
+                    }
                 }
-            }
-            .animation(.smooth, value: sheetDetent)
+                .animation(.smooth, value: sheetDetent)
 
-            // Bottom Sheet
-            if let userLocation = effectiveUserLocation, !tacos.isEmpty {
-                bottomSheet(userLocation: userLocation)
+                // Bottom Sheet
+                if let userLocation = effectiveUserLocation, !tacos.isEmpty {
+                    bottomSheet(userLocation: userLocation)
+                }
             }
         }
     }
@@ -294,13 +307,13 @@ struct ContentView: View {
             )
             .padding(.horizontal)
             .padding(.vertical, 8)
-            .sheet(isPresented: $showLuckyPick) {
+            .sheet(item: $luckyTaco) { taco in
                 LuckyPickView(
-                    taco: $luckyTaco,
+                    taco: taco,
                     userLocation: effectiveUserLocation ?? CLLocationCoordinate2D(latitude: 0, longitude: 0),
-                    onSelect: { taco in
-                        showLuckyPick = false
-                        selectedTaco = taco
+                    onSelect: { picked in
+                        luckyTaco = nil
+                        selectedTaco = picked
                     },
                     onReroll: pickLuckyTaco
                 )
@@ -427,7 +440,6 @@ struct ContentView: View {
         HapticManager.notification(.success)
         SoundManager.playLuckySound()
         luckyTaco = pick
-        showLuckyPick = true
     }
     
     func checkOnboarding() {

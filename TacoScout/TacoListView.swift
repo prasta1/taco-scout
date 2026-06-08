@@ -220,7 +220,8 @@ struct FloatingPhotoCarousel: View {
                     }
                 }
                 .tabViewStyle(.page(indexDisplayMode: .automatic))
-                .frame(width: UIScreen.main.bounds.width * 0.88, height: UIScreen.main.bounds.width * 0.66)
+                .containerRelativeFrame(.horizontal) { width, _ in width * 0.88 }
+                .aspectRatio(88.0 / 66.0, contentMode: .fit)
                 .clipShape(RoundedRectangle(cornerRadius: Layout.radiusLarge))
 
                 // Photo count
