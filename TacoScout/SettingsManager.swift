@@ -1,4 +1,5 @@
 import Foundation
+import Observation
 import WidgetKit
 
 // MARK: - Settings Enums
@@ -52,8 +53,10 @@ enum DistanceUnit: String, CaseIterable, Identifiable {
 
 // MARK: - Settings Manager
 
-class SettingsManager: ObservableObject {
-    @Published var searchRadius: SearchRadius {
+@Observable
+@MainActor
+final class SettingsManager {
+    var searchRadius: SearchRadius {
         didSet {
             UserDefaults.standard.set(searchRadius.rawValue, forKey: Keys.searchRadius)
             UserDefaults(suiteName: "group.com.tacoscout.app")?.set(searchRadius.rawValue, forKey: Keys.searchRadius)
@@ -61,7 +64,7 @@ class SettingsManager: ObservableObject {
         }
     }
 
-    @Published var distanceUnit: DistanceUnit {
+    var distanceUnit: DistanceUnit {
         didSet {
             UserDefaults.standard.set(distanceUnit.rawValue, forKey: Keys.distanceUnit)
             UserDefaults(suiteName: "group.com.tacoscout.app")?.set(distanceUnit.rawValue, forKey: Keys.distanceUnit)
@@ -69,32 +72,32 @@ class SettingsManager: ObservableObject {
         }
     }
 
-    @Published var hapticsEnabled: Bool {
+    var hapticsEnabled: Bool {
         didSet {
             UserDefaults.standard.set(hapticsEnabled, forKey: Keys.hapticsEnabled)
             HapticManager.enabled = hapticsEnabled
         }
     }
 
-    @Published var defaultSortOrder: SortOption {
+    var defaultSortOrder: SortOption {
         didSet { UserDefaults.standard.set(defaultSortOrder.rawValue, forKey: Keys.defaultSort) }
     }
 
-    @Published var soundsEnabled: Bool {
+    var soundsEnabled: Bool {
         didSet {
             UserDefaults.standard.set(soundsEnabled, forKey: Keys.soundsEnabled)
         }
     }
 
-    @Published var defaultOpenNowOnly: Bool {
+    var defaultOpenNowOnly: Bool {
         didSet { UserDefaults.standard.set(defaultOpenNowOnly, forKey: Keys.defaultOpenNow) }
     }
 
-    @Published var defaultMinRating: Double {
+    var defaultMinRating: Double {
         didSet { UserDefaults.standard.set(defaultMinRating, forKey: Keys.defaultMinRating) }
     }
 
-    @Published var defaultPriceFilter: PriceFilter {
+    var defaultPriceFilter: PriceFilter {
         didSet { UserDefaults.standard.set(defaultPriceFilter.rawValue, forKey: Keys.defaultPriceFilter) }
     }
 

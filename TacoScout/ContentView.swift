@@ -1,15 +1,14 @@
 import SwiftUI
 import MapKit
-import Combine
 import os.log
 
 private let logger = Logger(subsystem: "com.tacoscout.app", category: "ContentView")
 
 struct ContentView: View {
-    @StateObject private var locationManager = LocationManager()
-    @StateObject private var favoritesManager = FavoritesManager()
-    @StateObject private var settingsManager = SettingsManager()
-    @ObservedObject private var adManager = AdManager.shared
+    @State private var locationManager = LocationManager()
+    @State private var favoritesManager = FavoritesManager()
+    @State private var settingsManager = SettingsManager()
+    @State private var adManager = AdManager.shared
     @State private var tacos: [TacoLocation] = []
     @State private var selectedTaco: TacoLocation?
     @State private var showDetail = false
@@ -21,8 +20,7 @@ struct ContentView: View {
     @State private var showSettings = false
     @State private var showSearchOverlay = false
     @State private var mapZoomController = MapZoomController()
-    @State private var cancellables = Set<AnyCancellable>()
-    @State private var refreshCancellable: AnyCancellable?
+    @State private var refreshTask: Task<Void, Never>?
     @State private var loadingStatus: LoadingStatus = .locating
     @State private var lastSearchedLocation: CLLocationCoordinate2D?
     @Environment(\.verticalSizeClass) var verticalSizeClass
@@ -101,7 +99,7 @@ struct ContentView: View {
             }
         }
         .animation(.easeInOut(duration: 0.2), value: showSearchOverlay)
-        .environmentObject(settingsManager)
+        .environment(settingsManager)
         .fullScreenCover(isPresented: $showOnboarding) {
             OnboardingView(isPresented: $showOnboarding)
         }
@@ -142,16 +140,17 @@ struct ContentView: View {
         ZStack {
             mapLayer(bottomInset: sheetDetent.height, leadingInset: 0)
 
-            // Zoom Controls (Bottom Right, above sheet)
+            // Zoom Controls (Bottom Right) — track the sheet so they don't get obscured
             VStack {
                 Spacer()
                 HStack {
                     Spacer()
                     zoomButtons
                         .padding(.trailing)
-                        .padding(.bottom, 270)
+                        .padding(.bottom, sheetDetent.height + 12)
                 }
             }
+            .animation(.smooth, value: sheetDetent)
 
             // Bottom Sheet
             if let userLocation = effectiveUserLocation, !tacos.isEmpty {
@@ -336,29 +335,24 @@ struct ContentView: View {
 
         // React instantly when location becomes available — no polling
         let locationStartTime = Date()
-        locationManager.$userLocation
-            .compactMap { $0 }
-            .first()
-            .sink { location in
-                let gpsElapsed = Date().timeIntervalSince(locationStartTime)
-                logger.debug("⏱️ [TIMING] GPS location received in \(String(format: "%.2f", gpsElapsed))s — lat: \(location.latitude), lon: \(location.longitude)")
-                self.lastSearchedLocation = location
-                self.loadingStatus = .searching
-                Task {
-                    let apiStartTime = Date()
-                    let realTacos = await TacoService.searchNearbyTacos(location: location, radiusMeters: self.settingsManager.searchRadius.meters)
-                    let apiElapsed = Date().timeIntervalSince(apiStartTime)
-                    let totalElapsed = Date().timeIntervalSince(locationStartTime)
-                    logger.debug("⏱️ [TIMING] API returned \(realTacos.count) tacos in \(String(format: "%.2f", apiElapsed))s")
-                    logger.debug("⏱️ [TIMING] Total load time: \(String(format: "%.2f", totalElapsed))s (GPS: \(String(format: "%.2f", gpsElapsed))s + API: \(String(format: "%.2f", apiElapsed))s)")
-                    await MainActor.run {
-                        tacos = realTacos
-                        self.loadingStatus = realTacos.isEmpty ? .noResults : .done
-                        if !realTacos.isEmpty { self.adManager.loadAds(count: 3) }
-                    }
-                }
-            }
-            .store(in: &cancellables)
+        Task { @MainActor in
+            let location = await locationManager.nextLocation()
+            let gpsElapsed = Date().timeIntervalSince(locationStartTime)
+            logger.debug("⏱️ [TIMING] GPS location received in \(String(format: "%.2f", gpsElapsed))s — lat: \(location.latitude), lon: \(location.longitude)")
+            lastSearchedLocation = location
+            loadingStatus = .searching
+
+            let apiStartTime = Date()
+            let realTacos = await TacoService.searchNearbyTacos(location: location, radiusMeters: settingsManager.searchRadius.meters)
+            let apiElapsed = Date().timeIntervalSince(apiStartTime)
+            let totalElapsed = Date().timeIntervalSince(locationStartTime)
+            logger.debug("⏱️ [TIMING] API returned \(realTacos.count) tacos in \(String(format: "%.2f", apiElapsed))s")
+            logger.debug("⏱️ [TIMING] Total load time: \(String(format: "%.2f", totalElapsed))s (GPS: \(String(format: "%.2f", gpsElapsed))s + API: \(String(format: "%.2f", apiElapsed))s)")
+
+            tacos = realTacos
+            loadingStatus = realTacos.isEmpty ? .noResults : .done
+            if !realTacos.isEmpty { adManager.loadAds(count: 3) }
+        }
 
         // Note: No fallback — loading overlay stays until GPS + Google Places resolve
     }
@@ -393,37 +387,34 @@ struct ContentView: View {
 
     func refreshLocation() {
         HapticManager.impact(.medium)
+        // Clear stale value so nextLocation() suspends until a fresh fix arrives.
+        locationManager.userLocation = nil
         locationManager.requestLocation()
 
-        // Wait for new location, then center map and refetch if we've moved significantly
-        // Use a dedicated cancellable — replaced on each call so only one subscription is active
-        refreshCancellable = locationManager.$userLocation
-            .compactMap { $0 }
-            .first()
-            .sink { newLocation in
-                mapZoomController.centerOnUserLocation(newLocation)
+        refreshTask?.cancel()
+        refreshTask = Task { @MainActor in
+            let newLocation = await locationManager.nextLocation()
+            mapZoomController.centerOnUserLocation(newLocation)
 
-                // Refetch if we've moved more than ~500m from last search, or never searched
-                let shouldRefetch: Bool
-                if let lastSearch = lastSearchedLocation {
-                    let distance = CLLocation(latitude: lastSearch.latitude, longitude: lastSearch.longitude)
-                        .distance(from: CLLocation(latitude: newLocation.latitude, longitude: newLocation.longitude))
-                    shouldRefetch = distance > 500
-                } else {
-                    shouldRefetch = true
-                }
-
-                if shouldRefetch {
-                    lastSearchedLocation = newLocation
-                    Task {
-                        let results = await TacoService.searchNearbyTacos(
-                            location: newLocation,
-                            radiusMeters: settingsManager.searchRadius.meters
-                        )
-                        await MainActor.run { tacos = results }
-                    }
-                }
+            // Refetch if we've moved more than ~500m from last search, or never searched
+            let shouldRefetch: Bool
+            if let lastSearch = lastSearchedLocation {
+                let distance = CLLocation(latitude: lastSearch.latitude, longitude: lastSearch.longitude)
+                    .distance(from: CLLocation(latitude: newLocation.latitude, longitude: newLocation.longitude))
+                shouldRefetch = distance > 500
+            } else {
+                shouldRefetch = true
             }
+
+            if shouldRefetch {
+                lastSearchedLocation = newLocation
+                let results = await TacoService.searchNearbyTacos(
+                    location: newLocation,
+                    radiusMeters: settingsManager.searchRadius.meters
+                )
+                tacos = results
+            }
+        }
     }
     
     func pickLuckyTaco() {

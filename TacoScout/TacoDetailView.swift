@@ -7,7 +7,7 @@ struct TacoDetailView: View {
     let isFavorite: Bool
     let onFavoriteToggle: () -> Void
     @Environment(\.dismiss) var dismiss
-    @EnvironmentObject var settingsManager: SettingsManager
+    @Environment(SettingsManager.self) private var settingsManager
     @State private var selectedPhotoIndex = 0
     @State private var showAllHours = false
     @State private var loadedReviews: [Review] = []

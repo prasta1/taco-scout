@@ -2,7 +2,7 @@ import SwiftUI
 import StoreKit
 
 struct SettingsView: View {
-    @ObservedObject var settingsManager: SettingsManager
+    @Bindable var settingsManager: SettingsManager
     @Binding var showOnboarding: Bool
     @Environment(\.dismiss) private var dismiss
     @State private var showingMailError = false

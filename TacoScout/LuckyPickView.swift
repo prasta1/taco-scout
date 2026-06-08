@@ -6,7 +6,7 @@ struct LuckyPickView: View {
     let userLocation: CLLocationCoordinate2D
     let onSelect: (TacoLocation) -> Void
     let onReroll: () -> Void
-    @EnvironmentObject var settingsManager: SettingsManager
+    @Environment(SettingsManager.self) private var settingsManager
 
     @State private var isRevealed = false
     @State private var rotation: Double = 0

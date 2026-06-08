@@ -1,10 +1,12 @@
 import Foundation
-import SwiftUI
+import Observation
 
-class FavoritesManager: ObservableObject {
-    @Published private(set) var favoriteIDs: Set<String>
+@Observable
+@MainActor
+final class FavoritesManager {
+    private(set) var favoriteIDs: Set<String>
     private let favoritesKey = "favoriteTacoIDs"
-    
+
     init() {
         if let saved = UserDefaults.standard.array(forKey: favoritesKey) as? [String] {
             self.favoriteIDs = Set(saved)
@@ -12,11 +14,11 @@ class FavoritesManager: ObservableObject {
             self.favoriteIDs = []
         }
     }
-    
+
     func isFavorite(_ taco: TacoLocation) -> Bool {
         favoriteIDs.contains(taco.id)
     }
-    
+
     func toggle(_ taco: TacoLocation) {
         if favoriteIDs.contains(taco.id) {
             favoriteIDs.remove(taco.id)
@@ -25,7 +27,7 @@ class FavoritesManager: ObservableObject {
         }
         save()
     }
-    
+
     private func save() {
         UserDefaults.standard.set(Array(favoriteIDs), forKey: favoritesKey)
     }

@@ -1,17 +1,35 @@
 import CoreLocation
-import Combine
+import Observation
 import os.log
 
 private let locationLogger = Logger(subsystem: "com.tacoscout.app", category: "LocationManager")
 
-class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
-    @Published var userLocation: CLLocationCoordinate2D?
-    @Published var authorizationStatus: CLAuthorizationStatus = .notDetermined
-    @Published var isLoading = true
+@Observable
+@MainActor
+final class LocationManager: NSObject, CLLocationManagerDelegate {
+    var userLocation: CLLocationCoordinate2D?
+    var authorizationStatus: CLAuthorizationStatus = .notDetermined
+    var isLoading = true
 
-    private let locationManager = CLLocationManager()
-    private var retryCount = 0
-    private let maxRetries = 3
+    @ObservationIgnored private let locationManager = CLLocationManager()
+    @ObservationIgnored private var retryCount = 0
+    @ObservationIgnored private let maxRetries = 3
+    @ObservationIgnored private var locationWaiters: [CheckedContinuation<CLLocationCoordinate2D, Never>] = []
+
+    /// Awaits the next non-nil user location. If one is already available, returns it immediately.
+    /// Otherwise suspends until a fresh fix arrives via the delegate.
+    func nextLocation() async -> CLLocationCoordinate2D {
+        if let loc = userLocation { return loc }
+        return await withCheckedContinuation { continuation in
+            locationWaiters.append(continuation)
+        }
+    }
+
+    private func resumeWaiters(with location: CLLocationCoordinate2D) {
+        let waiters = locationWaiters
+        locationWaiters.removeAll()
+        for waiter in waiters { waiter.resume(returning: location) }
+    }
 
     override init() {
         super.init()
@@ -31,50 +49,55 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         } else {
             // Denied or restricted
             locationLogger.warning("Location access denied or restricted (status: \(status.rawValue))")
-            DispatchQueue.main.async {
-                self.isLoading = false
-            }
+            isLoading = false
         }
     }
 
     // MARK: - CLLocationManagerDelegate
+    // CLLocationManager delivers callbacks on the queue it was created on (main here),
+    // so we can safely hop to MainActor via assumeIsolated without explicit dispatch.
 
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+    nonisolated func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         // Use the most recent fix; skip stale cached locations (older than 30s)
         guard let location = locations.last,
               location.timestamp.timeIntervalSinceNow > -30 else { return }
 
-        DispatchQueue.main.async {
-            self.userLocation = location.coordinate
-            self.isLoading = false
-        }
         if let shared = UserDefaults(suiteName: "group.com.tacoscout.app") {
             shared.set(location.coordinate.latitude, forKey: "widgetLastLatitude")
             shared.set(location.coordinate.longitude, forKey: "widgetLastLongitude")
         }
-        // Stop continuous updates once we have a fresh fix — saves battery
-        manager.stopUpdatingLocation()
-    }
 
-    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-        locationLogger.error("Location error: \(error.localizedDescription)")
-        DispatchQueue.main.async {
+        MainActor.assumeIsolated {
+            self.userLocation = location.coordinate
             self.isLoading = false
-        }
-        // Only retry if we never got a location, and cap retries
-        if userLocation == nil && retryCount < maxRetries {
-            retryCount += 1
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-                locationLogger.debug("Retrying location request (\(self.retryCount)/\(self.maxRetries))...")
-                manager.startUpdatingLocation()
-            }
-        } else if userLocation == nil {
-            locationLogger.warning("Location failed after \(self.maxRetries) retries — giving up")
+            self.resumeWaiters(with: location.coordinate)
+            // Stop continuous updates once we have a fresh fix — saves battery
+            manager.stopUpdatingLocation()
         }
     }
 
-    func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
-        DispatchQueue.main.async {
+    nonisolated func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+        locationLogger.error("Location error: \(error.localizedDescription)")
+        MainActor.assumeIsolated {
+            self.isLoading = false
+            // Only retry if we never got a location, and cap retries
+            if self.userLocation == nil && self.retryCount < self.maxRetries {
+                self.retryCount += 1
+                let attempt = self.retryCount
+                let cap = self.maxRetries
+                Task { @MainActor in
+                    try? await Task.sleep(for: .seconds(2))
+                    locationLogger.debug("Retrying location request (\(attempt)/\(cap))...")
+                    manager.startUpdatingLocation()
+                }
+            } else if self.userLocation == nil {
+                locationLogger.warning("Location failed after \(self.maxRetries) retries — giving up")
+            }
+        }
+    }
+
+    nonisolated func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
+        MainActor.assumeIsolated {
             self.authorizationStatus = manager.authorizationStatus
             if manager.authorizationStatus == .authorizedWhenInUse || manager.authorizationStatus == .authorizedAlways {
                 self.locationManager.startUpdatingLocation()
