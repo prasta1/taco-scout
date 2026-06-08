@@ -28,3 +28,7 @@ Products/
 # Swift Package Manager
 .build/
 *.resolved
+
+# Local code review artifacts
+CodeReview-*.html
+CodeReview-*.pdf
