@@ -23,13 +23,17 @@ struct ContentView: View {
     @State private var refreshTask: Task<Void, Never>?
     @State private var loadingStatus: LoadingStatus = .locating
     @State private var lastSearchedLocation: CLLocationCoordinate2D?
+    @State private var filteredTacos: [TacoLocation] = []
     @Environment(\.verticalSizeClass) var verticalSizeClass
 
     private let debugLocationOverride: CLLocationCoordinate2D? = nil
 
-    var filteredTacos: [TacoLocation] {
-        guard let userLocation = effectiveUserLocation else { return [] }
-        return TacoService.filtered(tacos: tacos, with: filter, from: userLocation)
+    private func recomputeFilteredTacos() {
+        guard let userLocation = effectiveUserLocation else {
+            filteredTacos = []
+            return
+        }
+        filteredTacos = TacoService.filtered(tacos: tacos, with: filter, from: userLocation)
     }
     
     var activeFilterCount: Int {
@@ -127,6 +131,10 @@ struct ContentView: View {
             filter.maxDistance = Double(newValue.rawValue)
             refetchTacos()
         }
+        .onChange(of: tacos) { _, _ in recomputeFilteredTacos() }
+        .onChange(of: filter) { _, _ in recomputeFilteredTacos() }
+        .onChange(of: locationManager.userLocation?.latitude) { _, _ in recomputeFilteredTacos() }
+        .onChange(of: locationManager.userLocation?.longitude) { _, _ in recomputeFilteredTacos() }
         .onOpenURL { url in
             if url.scheme == "tacoscout" && url.host == "lucky" {
                 pickLuckyTaco()
