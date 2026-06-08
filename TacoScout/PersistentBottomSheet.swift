@@ -263,14 +263,14 @@ struct PersistentBottomSheet: View {
     let tacos: [TacoLocation]
     let userLocation: CLLocationCoordinate2D
     @Binding var selectedTaco: TacoLocation?
-    @ObservedObject var favoritesManager: FavoritesManager
-    @ObservedObject var adManager: AdManager
+    let favoritesManager: FavoritesManager
+    let adManager: AdManager
     @Binding var currentDetent: SheetDetent
     @Binding var filter: FilterState
     let onDetailsTap: () -> Void
     let onMapCenter: (CLLocationCoordinate2D) -> Void
     var onRefresh: (() async -> Void)? = nil
-    @EnvironmentObject var settingsManager: SettingsManager
+    @Environment(SettingsManager.self) private var settingsManager
     @Environment(\.verticalSizeClass) var verticalSizeClass
 
     @State private var showFavoritesOnly = false
@@ -598,7 +598,7 @@ struct FilterChipsRow: View {
     @Binding var showFavoritesOnly: Bool
     let favoritesCount: Int
     let hasActiveFilters: Bool
-    @EnvironmentObject var settingsManager: SettingsManager
+    @Environment(SettingsManager.self) private var settingsManager
 
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {

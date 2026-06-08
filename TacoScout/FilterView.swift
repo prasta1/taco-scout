@@ -3,7 +3,7 @@ import SwiftUI
 struct FilterView: View {
     @Binding var filter: FilterState
     @Environment(\.dismiss) var dismiss
-    @EnvironmentObject var settingsManager: SettingsManager
+    @Environment(SettingsManager.self) private var settingsManager
     
     var body: some View {
         NavigationStack {
