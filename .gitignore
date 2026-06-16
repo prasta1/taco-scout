@@ -32,3 +32,9 @@ Products/
 # Local code review artifacts
 CodeReview-*.html
 CodeReview-*.pdf
+CodeReview-*.md
+
+# Fastlane generated run artifacts (App Store screenshots live in ./screenshots)
+fastlane/README.md
+fastlane/report.xml
+fastlane/screenshots/
