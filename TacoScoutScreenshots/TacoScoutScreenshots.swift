@@ -2,39 +2,42 @@ import XCTest
 
 final class TacoScoutScreenshots: XCTestCase {
 
-    var app: XCUIApplication!
-
     override func setUpWithError() throws {
         continueAfterFailure = false
-        app = XCUIApplication()
-        setupSnapshot(app)
-        // Simulate San Antonio, TX — a city with great taco density
-        app.launchArguments += ["-AppleLanguages", "(en)"]
-        app.launchArguments += ["-AppleLocale", "en_US"]
-        app.launch()
     }
 
+    @MainActor
     func testCaptureScreenshots() throws {
-        // Dismiss onboarding if it appears
-        let continueButton = app.buttons["Continue"]
-        if continueButton.waitForExistence(timeout: 3) {
-            continueButton.tap()
+        let app = XCUIApplication()
+        setupSnapshot(app)
+        app.launchArguments += ["-AppleLanguages", "(en)"]
+        app.launchArguments += ["-AppleLocale", "en_US"]
+        // Fixed location so screenshots show a populated map without depending on
+        // the simulator's location/permission state.
+        app.launchArguments += ["-uiTestLocation", "40.7580,-73.9855"]
+        app.launch()
+
+        // Dismiss onboarding if it appears — "Skip" ends the whole multi-page flow
+        let skipButton = app.buttons["Skip"]
+        if skipButton.waitForExistence(timeout: 4) {
+            skipButton.tap()
         }
 
-        // Allow location permission
-        let allowButton = app.buttons["Allow While Using App"]
-        if allowButton.waitForExistence(timeout: 5) {
+        // Allow location permission — the system alert belongs to SpringBoard,
+        // not the app, so it must be tapped there.
+        let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
+        let allowButton = springboard.buttons["Allow While Using App"]
+        if allowButton.waitForExistence(timeout: 8) {
             allowButton.tap()
         }
 
-        // Wait for map and taco list to load
-        sleep(5)
+        // Wait for the location fix + nearby-taco search to resolve
+        sleep(8)
 
         // 01 — Main map view
         snapshot("01-Map")
 
         // Pull the bottom sheet up to show the list
-        let sheet = app.otherElements["taco-list-sheet"]
         let sheetHandle = app.otherElements.firstMatch
         let start = sheetHandle.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.3))
         let end = sheetHandle.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.0))

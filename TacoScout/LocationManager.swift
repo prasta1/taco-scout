@@ -14,21 +14,27 @@ final class LocationManager: NSObject, CLLocationManagerDelegate {
     @ObservationIgnored private let locationManager = CLLocationManager()
     @ObservationIgnored private var retryCount = 0
     @ObservationIgnored private let maxRetries = 3
-    @ObservationIgnored private var locationWaiters: [CheckedContinuation<CLLocationCoordinate2D, Never>] = []
+    @ObservationIgnored private var locationWaiters: [CheckedContinuation<LocationResult, Never>] = []
 
-    /// Awaits the next non-nil user location. If one is already available, returns it immediately.
-    /// Otherwise suspends until a fresh fix arrives via the delegate.
-    func nextLocation() async -> CLLocationCoordinate2D {
-        if let loc = userLocation { return loc }
+    enum LocationResult {
+        case coordinate(CLLocationCoordinate2D)
+        case denied
+    }
+
+    /// Awaits the next location result. Returns immediately if location already available.
+    /// Returns .denied if location access is denied/restricted or fails after retries.
+    func nextLocation() async -> LocationResult {
+        if let loc = userLocation { return .coordinate(loc) }
+        if authorizationStatus == .denied || authorizationStatus == .restricted { return .denied }
         return await withCheckedContinuation { continuation in
             locationWaiters.append(continuation)
         }
     }
 
-    private func resumeWaiters(with location: CLLocationCoordinate2D) {
+    private func resumeWaiters(with result: LocationResult) {
         let waiters = locationWaiters
         locationWaiters.removeAll()
-        for waiter in waiters { waiter.resume(returning: location) }
+        for waiter in waiters { waiter.resume(returning: result) }
     }
 
     override init() {
@@ -50,12 +56,11 @@ final class LocationManager: NSObject, CLLocationManagerDelegate {
             // Denied or restricted
             locationLogger.warning("Location access denied or restricted (status: \(status.rawValue))")
             isLoading = false
+            resumeWaiters(with: .denied)
         }
     }
 
     // MARK: - CLLocationManagerDelegate
-    // CLLocationManager delivers callbacks on the queue it was created on (main here),
-    // so we can safely hop to MainActor via assumeIsolated without explicit dispatch.
 
     nonisolated func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         // Use the most recent fix; skip stale cached locations (older than 30s)
@@ -70,7 +75,7 @@ final class LocationManager: NSObject, CLLocationManagerDelegate {
         MainActor.assumeIsolated {
             self.userLocation = location.coordinate
             self.isLoading = false
-            self.resumeWaiters(with: location.coordinate)
+            self.resumeWaiters(with: .coordinate(location.coordinate))
             // Stop continuous updates once we have a fresh fix — saves battery
             manager.stopUpdatingLocation()
         }
@@ -92,6 +97,7 @@ final class LocationManager: NSObject, CLLocationManagerDelegate {
                 }
             } else if self.userLocation == nil {
                 locationLogger.warning("Location failed after \(self.maxRetries) retries — giving up")
+                self.resumeWaiters(with: .denied)
             }
         }
     }
@@ -101,6 +107,9 @@ final class LocationManager: NSObject, CLLocationManagerDelegate {
             self.authorizationStatus = manager.authorizationStatus
             if manager.authorizationStatus == .authorizedWhenInUse || manager.authorizationStatus == .authorizedAlways {
                 self.locationManager.startUpdatingLocation()
+            } else if manager.authorizationStatus == .denied || manager.authorizationStatus == .restricted {
+                self.resumeWaiters(with: .denied)
+                self.isLoading = false
             }
         }
     }

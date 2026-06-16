@@ -48,8 +48,6 @@ struct MapView: UIViewRepresentable {
     var zoomController: MapZoomController?
     /// Bottom inset for the visible map area (accounts for the bottom sheet in portrait).
     var bottomInset: CGFloat = 0
-    /// Leading inset for the visible map area (accounts for the side panel in landscape).
-    var leadingInset: CGFloat = 0
 
     func makeUIView(context: Context) -> MKMapView {
         let mapView = MKMapView()
@@ -66,8 +64,8 @@ struct MapView: UIViewRepresentable {
         zoomController?.mapView = mapView
         zoomController?.coordinator = context.coordinator
 
-        // Tell MapKit about the visible area so centering accounts for the sheet/side panel
-        let newMargins = UIEdgeInsets(top: 0, left: leadingInset, bottom: bottomInset, right: 0)
+        // Tell MapKit about the visible area so centering accounts for the bottom sheet
+        let newMargins = UIEdgeInsets(top: 0, left: 0, bottom: bottomInset, right: 0)
         if mapView.layoutMargins != newMargins {
             mapView.layoutMargins = newMargins
         }

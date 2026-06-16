@@ -38,7 +38,7 @@ TacoScout is not directed at children under the age of 13 and does not knowingly
 
 ## Your Choices
 
-- **Location**: You can revoke location permission at any time in iOS Settings → TacoScout → Location
+- **Location**: You can revoke location permission at any time in iOS Settings → TacoScout → Location. (You will lose access to the ability to search for nearby taco spots, though)
 - **Ad Tracking**: You can change your tracking preference at any time in iOS Settings → Privacy & Security → Tracking
 
 ## Changes to This Policy
