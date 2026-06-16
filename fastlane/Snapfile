@@ -14,3 +14,11 @@ clear_previous_screenshots(true)
 override_status_bar(true)
 
 stop_after_first_error(false)
+
+# Run devices sequentially — concurrent parallel-clone testing trips an
+# xcresult result-bundle save failure (mkstemp) under this Xcode toolchain.
+concurrent_simulators(false)
+
+# Disable simulator cloning so tests run on the booted base device, which has
+# location permission + a simulated location pre-set (see the screenshots run).
+xcargs("-parallel-testing-enabled NO")

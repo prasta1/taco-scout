@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 56;
+	objectVersion = 70;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -46,6 +46,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		158320512FE1F1BB00E88CEB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A9000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A6000001;
+			remoteInfo = TacoScout;
+		};
 		W4000001 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = A9000001 /* Project object */;
@@ -70,6 +77,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		1583204D2FE1F1BB00E88CEB /* TacoScoutScreenshots.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TacoScoutScreenshots.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		15888DF62F34C822008D3D62 /* FavoritesManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoritesManager.swift; sourceTree = "<group>"; };
 		15888DFA2F34E214008D3D62 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		A2000001 /* TacoScoutApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TacoScoutApp.swift; sourceTree = "<group>"; };
@@ -106,7 +114,18 @@
 		W3000001 /* TacoScoutWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = TacoScoutWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		1583204E2FE1F1BB00E88CEB /* TacoScoutScreenshots */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = TacoScoutScreenshots; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
+
 /* Begin PBXFrameworksBuildPhase section */
+		1583204A2FE1F1BB00E88CEB /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		A4000001 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -139,6 +158,7 @@
 				C1000004 /* Config */,
 				A5000002 /* TacoScout */,
 				W5000002 /* TacoScoutWidget */,
+				1583204E2FE1F1BB00E88CEB /* TacoScoutScreenshots */,
 				15620F832F94EA1A00157D8C /* Frameworks */,
 				A5000003 /* Products */,
 			);
@@ -182,6 +202,7 @@
 			children = (
 				A3000001 /* TacoScout.app */,
 				W3000001 /* TacoScoutWidgetExtension.appex */,
+				1583204D2FE1F1BB00E88CEB /* TacoScoutScreenshots.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -209,6 +230,29 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		1583204C2FE1F1BB00E88CEB /* TacoScoutScreenshots */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 158320552FE1F1BB00E88CEB /* Build configuration list for PBXNativeTarget "TacoScoutScreenshots" */;
+			buildPhases = (
+				158320492FE1F1BB00E88CEB /* Sources */,
+				1583204A2FE1F1BB00E88CEB /* Frameworks */,
+				1583204B2FE1F1BB00E88CEB /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				158320522FE1F1BB00E88CEB /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				1583204E2FE1F1BB00E88CEB /* TacoScoutScreenshots */,
+			);
+			name = TacoScoutScreenshots;
+			packageProductDependencies = (
+			);
+			productName = TacoScoutScreenshots;
+			productReference = 1583204D2FE1F1BB00E88CEB /* TacoScoutScreenshots.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 		A6000001 /* TacoScout */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = A8000001 /* Build configuration list for PBXNativeTarget "TacoScout" */;
@@ -252,9 +296,13 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1500;
+				LastSwiftUpdateCheck = 2700;
 				LastUpgradeCheck = 2620;
 				TargetAttributes = {
+					1583204C2FE1F1BB00E88CEB = {
+						CreatedOnToolsVersion = 27.0;
+						TestTargetID = A6000001;
+					};
 					A6000001 = {
 						CreatedOnToolsVersion = 15.0;
 					};
@@ -281,11 +329,19 @@
 			targets = (
 				A6000001 /* TacoScout */,
 				W6000001 /* TacoScoutWidgetExtension */,
+				1583204C2FE1F1BB00E88CEB /* TacoScoutScreenshots */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		1583204B2FE1F1BB00E88CEB /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		A7000002 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -307,6 +363,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		158320492FE1F1BB00E88CEB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		A7000001 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -353,6 +416,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		158320522FE1F1BB00E88CEB /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A6000001 /* TacoScout */;
+			targetProxy = 158320512FE1F1BB00E88CEB /* PBXContainerItemProxy */;
+		};
 		W4000003 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = W6000001 /* TacoScoutWidgetExtension */;
@@ -361,6 +429,50 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		158320532FE1F1BB00E88CEB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = QVYZN4MJ67;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = prasta.TacoScoutScreenshots;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = TacoScout;
+			};
+			name = Debug;
+		};
+		158320542FE1F1BB00E88CEB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = QVYZN4MJ67;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = prasta.TacoScoutScreenshots;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = TacoScout;
+			};
+			name = Release;
+		};
 		AA000001 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -505,7 +617,7 @@
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = UIInterfaceOrientationPortrait;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -540,7 +652,7 @@
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = UIInterfaceOrientationPortrait;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -611,6 +723,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		158320552FE1F1BB00E88CEB /* Build configuration list for PBXNativeTarget "TacoScoutScreenshots" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				158320532FE1F1BB00E88CEB /* Debug */,
+				158320542FE1F1BB00E88CEB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		A8000001 /* Build configuration list for PBXNativeTarget "TacoScout" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

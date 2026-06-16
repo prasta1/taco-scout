@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "2620"
+   LastUpgradeVersion = "2700"
    version = "1.7">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -10,14 +10,14 @@
          <BuildActionEntry
             buildForTesting = "YES"
             buildForRunning = "YES"
-            buildForProfiling = "YES"
-            buildForArchiving = "YES"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "A6000001"
-               BuildableName = "TacoScout.app"
-               BlueprintName = "TacoScout"
+               BlueprintIdentifier = "1583204C2FE1F1BB00E88CEB"
+               BuildableName = "TacoScoutScreenshots.xctest"
+               BlueprintName = "TacoScoutScreenshots"
                ReferencedContainer = "container:TacoScout.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -51,21 +51,8 @@
       ignoresPersistentStateOnLaunch = "NO"
       debugDocumentVersioning = "YES"
       debugServiceExtension = "internal"
-      allowLocationSimulation = "YES">
-      <BuildableProductRunnable
-         runnableDebuggingMode = "0">
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "A6000001"
-            BuildableName = "TacoScout.app"
-            BlueprintName = "TacoScout"
-            ReferencedContainer = "container:TacoScout.xcodeproj">
-         </BuildableReference>
-      </BuildableProductRunnable>
-      <LocationScenarioReference
-         identifier = "New York, NY, USA"
-         referenceType = "1">
-      </LocationScenarioReference>
+      allowLocationSimulation = "YES"
+      queueDebuggingEnabled = "No">
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"
@@ -73,16 +60,6 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
-      <BuildableProductRunnable
-         runnableDebuggingMode = "0">
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "A6000001"
-            BuildableName = "TacoScout.app"
-            BlueprintName = "TacoScout"
-            ReferencedContainer = "container:TacoScout.xcodeproj">
-         </BuildableReference>
-      </BuildableProductRunnable>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">

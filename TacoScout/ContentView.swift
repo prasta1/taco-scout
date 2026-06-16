@@ -23,9 +23,17 @@ struct ContentView: View {
     @State private var loadingStatus: LoadingStatus = .locating
     @State private var lastSearchedLocation: CLLocationCoordinate2D?
     @State private var filteredTacos: [TacoLocation] = []
-    @Environment(\.verticalSizeClass) var verticalSizeClass
 
-    private let debugLocationOverride: CLLocationCoordinate2D? = nil
+    /// Fixed location for App Store screenshot automation. Active only when the
+    /// UI-test runner passes `-uiTestLocation "lat,lon"`; `nil` in normal use, so
+    /// production behavior (real GPS + permission flow) is unaffected.
+    private let debugLocationOverride: CLLocationCoordinate2D? = {
+        let args = ProcessInfo.processInfo.arguments
+        guard let idx = args.firstIndex(of: "-uiTestLocation"), idx + 1 < args.count else { return nil }
+        let parts = args[idx + 1].split(separator: ",")
+        guard parts.count == 2, let lat = Double(parts[0]), let lon = Double(parts[1]) else { return nil }
+        return CLLocationCoordinate2D(latitude: lat, longitude: lon)
+    }()
 
     private func recomputeFilteredTacos() {
         guard let userLocation = effectiveUserLocation else {
@@ -48,37 +56,62 @@ struct ContentView: View {
         debugLocationOverride ?? locationManager.userLocation
     }
 
-    private var isLandscape: Bool {
-        // iPhone landscape: verticalSizeClass == .compact
-        // iPad landscape: both size classes stay .regular, so check device orientation
-        if verticalSizeClass == .compact { return true }
-        if UIDevice.current.userInterfaceIdiom == .pad {
-            return UIDevice.current.orientation.isLandscape
-        }
-        return false
-    }
-
-    private var sidePanelWidth: CGFloat {
-        UIDevice.current.userInterfaceIdiom == .pad ? 420 : 320
-    }
-
     var body: some View {
         ZStack {
-            if !tacos.isEmpty || debugLocationOverride != nil || loadingStatus == .done || loadingStatus == .noResults {
-                if isLandscape {
-                    landscapeLayout
-                } else {
-                    portraitLayout
-                }
+            if !tacos.isEmpty || debugLocationOverride != nil || loadingStatus == .done || loadingStatus == .noResults || loadingStatus == .locationDenied {
+                portraitLayout
             } else if case .error = loadingStatus {
                 LoadingOverlay(status: loadingStatus)
             } else if loadingStatus == .locating || loadingStatus == .searching {
                 LoadingOverlay(status: loadingStatus)
             }
 
-            // Top Controls — only in portrait (landscape puts them inside the map area)
-            if !isLandscape {
-                topControls
+            topControls
+
+            // Location denied inline banner
+            if loadingStatus == .locationDenied {
+                VStack {
+                    HStack(spacing: 12) {
+                        Image(systemName: "location.slash")
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundColor(.white)
+                        Text("Location access needed to find nearby tacos")
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                            .foregroundColor(.white)
+                        Spacer()
+                        Button {
+                            if let url = URL(string: UIApplication.openSettingsURLString) {
+                                UIApplication.shared.open(url)
+                            }
+                        } label: {
+                            Text("Open Settings")
+                                .font(.subheadline)
+                                .fontWeight(.semibold)
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 6)
+                                .background(Color.white.opacity(0.2))
+                                .cornerRadius(8)
+                        }
+                        Button {
+                            withAnimation(.easeInOut) {
+                                loadingStatus = .noResults
+                            }
+                        } label: {
+                            Image(systemName: "xmark")
+                                .font(.system(size: 14, weight: .semibold))
+                                .foregroundColor(.white.opacity(0.8))
+                        }
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 12)
+                    .background(Color.tacoOrange)
+                    .transition(.move(edge: .top).combined(with: .opacity))
+                    Spacer()
+                }
+                .zIndex(50)
+                .animation(.spring(response: 0.4, dampingFraction: 0.8), value: loadingStatus)
             }
 
             // Spotlight-style Search Overlay
@@ -150,7 +183,7 @@ struct ContentView: View {
             let detentHeight = sheetDetent.height(in: containerHeight, safeAreaTop: safeAreaTop)
 
             ZStack {
-                mapLayer(bottomInset: detentHeight, leadingInset: 0)
+                mapLayer(bottomInset: detentHeight)
 
                 // Zoom Controls (Bottom Right) — track the sheet so they don't get obscured
                 VStack {
@@ -172,40 +205,9 @@ struct ContentView: View {
         }
     }
 
-    // MARK: - Landscape Layout (Side Panel)
-
-    private var landscapeLayout: some View {
-        ZStack(alignment: .leading) {
-            // Map fills entire space behind the floating panel
-            ZStack {
-                mapLayer(bottomInset: 0, leadingInset: sidePanelWidth + 24)
-
-                // Top Controls — offset to clear the floating panel
-                topControls
-                    .padding(.leading, sidePanelWidth + 24)
-
-                // Zoom Controls (Bottom Right)
-                VStack {
-                    Spacer()
-                    HStack {
-                        Spacer()
-                        zoomButtons
-                            .padding(.trailing)
-                            .padding(.bottom, 16)
-                    }
-                }
-            }
-
-            // Floating side panel on left
-            if let userLocation = effectiveUserLocation, !tacos.isEmpty {
-                bottomSheet(userLocation: userLocation)
-            }
-        }
-    }
-
     // MARK: - Shared Subviews
 
-    private func mapLayer(bottomInset: CGFloat, leadingInset: CGFloat) -> some View {
+    private func mapLayer(bottomInset: CGFloat) -> some View {
         MapView(
             userLocation: effectiveUserLocation,
             tacos: filteredTacos,
@@ -217,8 +219,7 @@ struct ContentView: View {
                 }
             },
             zoomController: mapZoomController,
-            bottomInset: bottomInset,
-            leadingInset: leadingInset
+            bottomInset: bottomInset
         )
         .ignoresSafeArea()
         .sheet(isPresented: $showSettings, onDismiss: syncFiltersFromSettings) {
@@ -348,26 +349,54 @@ struct ContentView: View {
 
         // React instantly when location becomes available — no polling
         let locationStartTime = Date()
-        Task { @MainActor in
-            let location = await locationManager.nextLocation()
-            let gpsElapsed = Date().timeIntervalSince(locationStartTime)
-            logger.debug("⏱️ [TIMING] GPS location received in \(String(format: "%.2f", gpsElapsed))s — lat: \(location.latitude), lon: \(location.longitude)")
-            lastSearchedLocation = location
-            loadingStatus = .searching
 
-            let apiStartTime = Date()
-            let realTacos = await TacoService.searchNearbyTacos(location: location, radiusMeters: settingsManager.searchRadius.meters)
-            let apiElapsed = Date().timeIntervalSince(apiStartTime)
-            let totalElapsed = Date().timeIntervalSince(locationStartTime)
-            logger.debug("⏱️ [TIMING] API returned \(realTacos.count) tacos in \(String(format: "%.2f", apiElapsed))s")
-            logger.debug("⏱️ [TIMING] Total load time: \(String(format: "%.2f", totalElapsed))s (GPS: \(String(format: "%.2f", gpsElapsed))s + API: \(String(format: "%.2f", apiElapsed))s)")
+        // Start the waiter FIRST (registers continuation), THEN request location.
+        // This avoids a race where a cached location arrives before the waiter is registered.
+        let locationTask = Task { @MainActor in
+            await locationManager.nextLocation()
+        }
+        locationManager.requestLocation()
 
-            tacos = realTacos
-            loadingStatus = realTacos.isEmpty ? .noResults : .done
-            if !realTacos.isEmpty { adManager.loadAds(count: 3) }
+        // Watchdog: the loading overlay must NEVER hang indefinitely (App Store rejection 2.1a).
+        // If location + search haven't resolved within the timeout, drop to a usable state
+        // instead of spinning forever — covers denied/no-GPS-fix/stalled-API alike.
+        let watchdog = Task { @MainActor in
+            try? await Task.sleep(for: .seconds(15))
+            guard !Task.isCancelled else { return }
+            if loadingStatus == .locating || loadingStatus == .searching {
+                logger.warning("⏱️ Loading watchdog fired — location/search did not resolve in time")
+                // No location at all → show the "enable location" banner.
+                // Have a location but search stalled → show the (usable) empty map.
+                loadingStatus = locationManager.userLocation == nil ? .locationDenied : .noResults
+            }
         }
 
-        // Note: No fallback — loading overlay stays until GPS + Google Places resolve
+        Task { @MainActor in
+            let result = await locationTask.value
+            switch result {
+            case .coordinate(let location):
+                let gpsElapsed = Date().timeIntervalSince(locationStartTime)
+                logger.debug("⏱️ [TIMING] GPS location received in \(String(format: "%.2f", gpsElapsed))s — lat: \(location.latitude), lon: \(location.longitude)")
+                lastSearchedLocation = location
+                loadingStatus = .searching
+
+                let apiStartTime = Date()
+                let realTacos = await TacoService.searchNearbyTacos(location: location, radiusMeters: settingsManager.searchRadius.meters)
+                let apiElapsed = Date().timeIntervalSince(apiStartTime)
+                let totalElapsed = Date().timeIntervalSince(locationStartTime)
+                logger.debug("⏱️ [TIMING] API returned \(realTacos.count) tacos in \(String(format: "%.2f", apiElapsed))s")
+                logger.debug("⏱️ [TIMING] Total load time: \(String(format: "%.2f", totalElapsed))s (GPS: \(String(format: "%.2f", gpsElapsed))s + API: \(String(format: "%.2f", apiElapsed))s)")
+
+                tacos = realTacos
+                loadingStatus = realTacos.isEmpty ? .noResults : .done
+                if !realTacos.isEmpty { adManager.loadAds(count: 3) }
+
+            case .denied:
+                loadingStatus = .locationDenied
+            }
+            // Loading reached a terminal state — stand down the watchdog.
+            watchdog.cancel()
+        }
     }
 
     /// Syncs client-side filters from settings defaults when the settings sheet is dismissed.
@@ -406,26 +435,32 @@ struct ContentView: View {
 
         refreshTask?.cancel()
         refreshTask = Task { @MainActor in
-            let newLocation = await locationManager.nextLocation()
-            mapZoomController.centerOnUserLocation(newLocation)
+            let result = await locationManager.nextLocation()
+            switch result {
+            case .coordinate(let newLocation):
+                mapZoomController.centerOnUserLocation(newLocation)
 
-            // Refetch if we've moved more than ~500m from last search, or never searched
-            let shouldRefetch: Bool
-            if let lastSearch = lastSearchedLocation {
-                let distance = CLLocation(latitude: lastSearch.latitude, longitude: lastSearch.longitude)
-                    .distance(from: CLLocation(latitude: newLocation.latitude, longitude: newLocation.longitude))
-                shouldRefetch = distance > 500
-            } else {
-                shouldRefetch = true
-            }
+                // Refetch if we've moved more than ~500m from last search, or never searched
+                let shouldRefetch: Bool
+                if let lastSearch = lastSearchedLocation {
+                    let distance = CLLocation(latitude: lastSearch.latitude, longitude: lastSearch.longitude)
+                        .distance(from: CLLocation(latitude: newLocation.latitude, longitude: newLocation.longitude))
+                    shouldRefetch = distance > 500
+                } else {
+                    shouldRefetch = true
+                }
 
-            if shouldRefetch {
-                lastSearchedLocation = newLocation
-                let results = await TacoService.searchNearbyTacos(
-                    location: newLocation,
-                    radiusMeters: settingsManager.searchRadius.meters
-                )
-                tacos = results
+                if shouldRefetch {
+                    lastSearchedLocation = newLocation
+                    let results = await TacoService.searchNearbyTacos(
+                        location: newLocation,
+                        radiusMeters: settingsManager.searchRadius.meters
+                    )
+                    tacos = results
+                }
+
+            case .denied:
+                loadingStatus = .locationDenied
             }
         }
     }
@@ -529,6 +564,7 @@ enum LoadingStatus: Equatable {
     case searching
     case done
     case noResults
+    case locationDenied
     case error(String)
 
     var message: String {
@@ -537,6 +573,7 @@ enum LoadingStatus: Equatable {
         case .searching: return "Searching nearby..."
         case .done: return ""
         case .noResults: return "No taco spots found nearby"
+        case .locationDenied: return "Location access denied. Enable in Settings to find tacos."
         case .error(let msg): return msg
         }
     }

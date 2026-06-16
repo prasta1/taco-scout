@@ -76,6 +76,16 @@ struct SettingsView: View {
                         dismiss()
                     }
 
+                    Link(destination: URL(string: UIApplication.openSettingsURLString)!) {
+                        HStack {
+                            Text("Open Location Settings")
+                            Spacer()
+                            Image(systemName: "arrow.up.right.square")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+
                     Link(destination: URL(string: "https://github.com/prasta1")!) {
                         HStack {
                             Text("About the Developer")

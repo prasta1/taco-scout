@@ -283,7 +283,6 @@ struct PersistentBottomSheet: View {
     let onMapCenter: (CLLocationCoordinate2D) -> Void
     var onRefresh: (() async -> Void)? = nil
     @Environment(SettingsManager.self) private var settingsManager
-    @Environment(\.verticalSizeClass) var verticalSizeClass
 
     @State private var showFavoritesOnly = false
     @State private var carouselTaco: TacoLocation?
@@ -305,29 +304,11 @@ struct PersistentBottomSheet: View {
         filter.minRating > 0 || filter.priceFilter != .any || filter.openNowOnly || filter.maxDistance != Double(settingsManager.searchRadius.rawValue) || showFavoritesOnly
     }
 
-    private var isLandscape: Bool {
-        if verticalSizeClass == .compact { return true }
-        if UIDevice.current.userInterfaceIdiom == .pad {
-            return UIDevice.current.orientation.isLandscape
-        }
-        return false
-    }
-
-    private var panelWidth: CGFloat {
-        UIDevice.current.userInterfaceIdiom == .pad ? 420 : 320
-    }
-
     var body: some View {
-        Group {
-            if isLandscape {
-                landscapePanel
-            } else {
-                BottomSheetContainer(currentDetent: $currentDetent) {
-                    sheetContent
-                }
-                .ignoresSafeArea(edges: .bottom)
-            }
+        BottomSheetContainer(currentDetent: $currentDetent) {
+            sheetContent
         }
+        .ignoresSafeArea(edges: .bottom)
         .overlay {
             if let taco = carouselTaco {
                 FloatingPhotoCarousel(taco: taco) {
@@ -337,113 +318,6 @@ struct PersistentBottomSheet: View {
                 }
             }
         }
-    }
-
-    // MARK: - Landscape Side Panel
-
-    private var landscapePanel: some View {
-        GeometryReader { _ in
-            VStack(spacing: 0) {
-                // HEADER (no drag handle in landscape)
-                SheetHeader(tacoCount: filteredTacos.count)
-                .padding(.horizontal, 16)
-                .padding(.top, 16)
-                .padding(.bottom, 8)
-
-                // SELECTED TACO CARD
-                if let taco = selectedTaco {
-                    SelectedTacoSection(
-                        taco: taco,
-                        userLocation: userLocation,
-                        isFavorite: favoritesManager.isFavorite(taco),
-                        onFavoriteToggle: { favoritesManager.toggle(taco) },
-                        onDetailsTap: onDetailsTap,
-                        onDismiss: {
-                            withAnimation(.smooth) {
-                                selectedTaco = nil
-                            }
-                        },
-                        distanceUnit: settingsManager.distanceUnit
-                    )
-                    .transition(.opacity.combined(with: .move(edge: .top)))
-                }
-
-                // FILTER CHIPS
-                FilterChipsRow(
-                    filter: $filter,
-                    showFavoritesOnly: $showFavoritesOnly,
-                    favoritesCount: tacos.filter { favoritesManager.isFavorite($0) }.count,
-                    hasActiveFilters: hasActiveFilters
-                )
-                .padding(.horizontal, Layout.paddingContent)
-                .padding(.vertical, 8)
-
-                Divider()
-                    .padding(.horizontal, Layout.paddingContent)
-
-                // LIST — always scrollable in landscape
-                if listTacos.isEmpty && selectedTaco == nil {
-                    EmptyStateView(
-                        icon: showFavoritesOnly ? "heart.slash" : "taco",
-                        title: showFavoritesOnly ? "No Favorites Yet" : "No Tacos Found",
-                        subtitle: showFavoritesOnly ? "Tap the heart on any taco to save it" : "Try adjusting your filters"
-                    )
-                } else {
-                    ScrollView {
-                        LazyVStack(spacing: 0) {
-                            ForEach(Array(listTacos.enumerated()), id: \.element.id) { index, taco in
-                                TacoListItemView(
-                                    taco: taco,
-                                    userLocation: userLocation,
-                                    isSelected: false,
-                                    isFavorite: favoritesManager.isFavorite(taco),
-                                    onFavoriteToggle: { favoritesManager.toggle(taco) },
-                                    distanceUnit: settingsManager.distanceUnit,
-                                    onPhotoTap: taco.photos.isEmpty ? nil : {
-                                        HapticManager.selection()
-                                        withAnimation(.easeOut(duration: 0.25)) {
-                                            carouselTaco = taco
-                                        }
-                                    }
-                                )
-                                .padding(.horizontal, 16)
-                                .padding(.vertical, 4)
-                                .contentShape(Rectangle())
-                                .onTapGesture {
-                                    HapticManager.selection()
-                                    selectedTaco = taco
-                                    onMapCenter(taco.coordinate)
-                                }
-
-                                if taco.id != listTacos.last?.id {
-                                    Divider()
-                                        .padding(.leading, 88)
-                                        .padding(.trailing, 16)
-                                }
-
-                                // Insert native ad after every 5th item
-                                if (index + 1) % 5 == 0, let ad = adManager.loadedAds[safe: (index + 1) / 5 - 1] {
-                                    AdNativeView(nativeAd: ad)
-                                        .frame(height: 120)
-                                        .padding(.horizontal, 16)
-                                        .padding(.vertical, 8)
-                                }
-                            }
-                        }
-                        .padding(.top, 4)
-                    }
-                    .refreshable {
-                        HapticManager.impact(.medium)
-                        await onRefresh?()
-                    }
-                }
-            }
-        }
-        .frame(width: panelWidth)
-        .background(Color(.systemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-        .shadow(color: .black.opacity(0.12), radius: 20, x: 0, y: 0)
-        .padding(12)
     }
 
     private var sheetContent: some View {
