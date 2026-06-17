@@ -8,7 +8,6 @@ struct ContentView: View {
     @State private var locationManager = LocationManager()
     @State private var favoritesManager = FavoritesManager()
     @State private var settingsManager = SettingsManager()
-    @State private var adManager = AdManager.shared
     @State private var tacos: [TacoLocation] = []
     @State private var selectedTaco: TacoLocation?
     @State private var showDetail = false
@@ -150,11 +149,6 @@ struct ContentView: View {
             locationManager.requestLocation()
             loadTacosFromLocation()
         }
-        .task {
-            // Run UMP consent → ATT → AdMob init sequence once on launch.
-            // The window hierarchy is ready by the time .task fires.
-            await AdManager.shared.requestConsentAndInitialize()
-        }
         .onChange(of: settingsManager.soundsEnabled) { _, newValue in
             SoundManager.enabled = newValue
         }
@@ -258,7 +252,6 @@ struct ContentView: View {
             userLocation: userLocation,
             selectedTaco: $selectedTaco,
             favoritesManager: favoritesManager,
-            adManager: adManager,
             currentDetent: $sheetDetent,
             filter: $filter,
             onDetailsTap: {
@@ -341,7 +334,6 @@ struct ContentView: View {
                 await MainActor.run {
                     tacos = osmTacos
                     loadingStatus = osmTacos.isEmpty ? .noResults : .done
-                    if !osmTacos.isEmpty { adManager.loadAds(count: 3) }
                 }
             }
             return
@@ -389,7 +381,6 @@ struct ContentView: View {
 
                 tacos = realTacos
                 loadingStatus = realTacos.isEmpty ? .noResults : .done
-                if !realTacos.isEmpty { adManager.loadAds(count: 3) }
 
             case .denied:
                 loadingStatus = .locationDenied
@@ -419,10 +410,6 @@ struct ContentView: View {
             )
             await MainActor.run {
                 tacos = results
-                if !results.isEmpty {
-                    adManager.clearAds()
-                    adManager.loadAds(count: 3)
-                }
             }
         }
     }
