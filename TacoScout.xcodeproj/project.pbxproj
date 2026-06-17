@@ -7,8 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		151640EB2F5A5E4A00DC3540 /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = 151640EA2F5A5E4A00DC3540 /* GoogleMobileAds */; };
-		15620F852F94EA1A00157D8C /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = 15620F842F94EA1A00157D8C /* GoogleMobileAds */; };
 		15888DF72F34C822008D3D62 /* FavoritesManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15888DF62F34C822008D3D62 /* FavoritesManager.swift */; };
 		A1000001 /* TacoScoutApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000001 /* TacoScoutApp.swift */; };
 		A1000002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000002 /* ContentView.swift */; };
@@ -30,8 +28,6 @@
 		A1000013 /* DeliveryLinkHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000013 /* DeliveryLinkHelper.swift */; };
 		A1000014 /* SoundManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000014 /* SoundManager.swift */; };
 		A1000015 /* arriba.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = A2000015 /* arriba.mp3 */; };
-		A1000016 /* AdManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000016 /* AdManager.swift */; };
-		A1000017 /* NativeAdView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000017 /* NativeAdView.swift */; };
 		C1000003 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = C1000002 /* PrivacyInfo.xcprivacy */; };
 		W1000001 /* TacoScoutWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = W2000001 /* TacoScoutWidgetBundle.swift */; };
 		W1000002 /* TacoScoutWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = W2000002 /* TacoScoutWidget.swift */; };
@@ -100,8 +96,6 @@
 		A2000013 /* DeliveryLinkHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeliveryLinkHelper.swift; sourceTree = "<group>"; };
 		A2000014 /* SoundManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundManager.swift; sourceTree = "<group>"; };
 		A2000015 /* arriba.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = arriba.mp3; sourceTree = "<group>"; };
-		A2000016 /* AdManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdManager.swift; sourceTree = "<group>"; };
-		A2000017 /* NativeAdView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeAdView.swift; sourceTree = "<group>"; };
 		A3000001 /* TacoScout.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TacoScout.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C1000001 /* Secrets.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Secrets.xcconfig; sourceTree = "<group>"; };
 		C1000002 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
@@ -130,8 +124,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				15620F852F94EA1A00157D8C /* GoogleMobileAds in Frameworks */,
-				151640EB2F5A5E4A00DC3540 /* GoogleMobileAds in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -170,10 +162,8 @@
 				W2000006 /* TacoScout.entitlements */,
 				15888DFA2F34E214008D3D62 /* Info.plist */,
 				A2000001 /* TacoScoutApp.swift */,
-				A2000016 /* AdManager.swift */,
 				A2000002 /* ContentView.swift */,
 				A2000003 /* LocationManager.swift */,
-				A2000017 /* NativeAdView.swift */,
 				A2000004 /* TacoLocation.swift */,
 				A2000005 /* TacoService.swift */,
 				A2000006 /* DistanceCalculator.swift */,
@@ -321,7 +311,6 @@
 			);
 			mainGroup = A5000001;
 			packageReferences = (
-				151640E92F5A5E4A00DC3540 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */,
 			);
 			productRefGroup = A5000003 /* Products */;
 			projectDirPath = "";
@@ -393,8 +382,6 @@
 				A1000012 /* SettingsManager.swift in Sources */,
 				A1000013 /* DeliveryLinkHelper.swift in Sources */,
 				A1000014 /* SoundManager.swift in Sources */,
-				A1000016 /* AdManager.swift in Sources */,
-				A1000017 /* NativeAdView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -761,29 +748,7 @@
 		};
 /* End XCConfigurationList section */
 
-/* Begin XCRemoteSwiftPackageReference section */
-		151640E92F5A5E4A00DC3540 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/googleads/swift-package-manager-google-mobile-ads";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 13.1.0;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
 
-/* Begin XCSwiftPackageProductDependency section */
-		151640EA2F5A5E4A00DC3540 /* GoogleMobileAds */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 151640E92F5A5E4A00DC3540 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */;
-			productName = GoogleMobileAds;
-		};
-		15620F842F94EA1A00157D8C /* GoogleMobileAds */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 151640E92F5A5E4A00DC3540 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */;
-			productName = GoogleMobileAds;
-		};
-/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = A9000001 /* Project object */;
 }
