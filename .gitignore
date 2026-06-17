@@ -12,6 +12,8 @@ Config/Secrets.xcconfig
 xcuserdata/
 *.xcworkspace/xcuserdata/
 *.xcworkspace/xcshareddata/
+!*.xcworkspace/xcshareddata/swiftpm/
+!*.xcworkspace/xcshareddata/swiftpm/Package.resolved
 DerivedData/
 *.pbxuser
 *.mode1v3
@@ -28,6 +30,7 @@ Products/
 # Swift Package Manager
 .build/
 *.resolved
+!**/Package.resolved
 
 # Local code review artifacts
 CodeReview-*.html

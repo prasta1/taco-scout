@@ -276,7 +276,6 @@ struct PersistentBottomSheet: View {
     let userLocation: CLLocationCoordinate2D
     @Binding var selectedTaco: TacoLocation?
     let favoritesManager: FavoritesManager
-    let adManager: AdManager
     @Binding var currentDetent: SheetDetent
     @Binding var filter: FilterState
     let onDetailsTap: () -> Void
@@ -403,14 +402,6 @@ struct PersistentBottomSheet: View {
                             if taco.id != listTacos.last?.id {
                                 Divider()
                                     .padding(.leading, 88)
-                            }
-
-                            // Insert native ad after every 5th item
-                            if (index + 1) % 5 == 0, let ad = adManager.loadedAds[safe: (index + 1) / 5 - 1] {
-                                AdNativeView(nativeAd: ad)
-                                    .frame(height: 120)
-                                    .padding(.horizontal, Layout.paddingContent)
-                                    .padding(.vertical, 8)
                             }
                         }
                     }
