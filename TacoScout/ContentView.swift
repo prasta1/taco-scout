@@ -116,9 +116,10 @@ struct ContentView: View {
             // Spotlight-style Search Overlay
             if showSearchOverlay {
                 SearchOverlayView(
-                    tacos: filteredTacos,
+                    tacos: tacos,
                     userLocation: effectiveUserLocation ?? CLLocationCoordinate2D(latitude: 0, longitude: 0),
                     distanceUnit: settingsManager.distanceUnit,
+                    searchRadiusLabel: settingsManager.searchRadius.label(unit: settingsManager.distanceUnit),
                     onSelect: { taco in
                         showSearchOverlay = false
                         HapticManager.selection()
@@ -676,6 +677,7 @@ struct SearchOverlayView: View {
     let tacos: [TacoLocation]
     let userLocation: CLLocationCoordinate2D
     let distanceUnit: DistanceUnit
+    let searchRadiusLabel: String
     let onSelect: (TacoLocation) -> Void
     let onDismiss: () -> Void
 
@@ -746,6 +748,11 @@ struct SearchOverlayView: View {
                         Text("Search by name or neighborhood")
                             .font(.subheadline)
                             .foregroundColor(.secondary)
+                        Text("Searches all spots within your \(searchRadiusLabel) search radius, ignoring active filters")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 32)
                     }
                     .padding(.top, 60)
                 } else if results.isEmpty {
