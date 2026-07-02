@@ -58,12 +58,12 @@ struct TacoDetailView: View {
                                     .overlay(
                                         Text(String(taco.name.prefix(1)).uppercased())
                                             .font(.system(size: 36, weight: .bold))
-                                            .foregroundColor(.white)
+                                            .foregroundStyle(.white)
                                     )
 
                                 Text(taco.name)
                                     .font(.headline)
-                                    .foregroundColor(.white.opacity(0.9))
+                                    .foregroundStyle(.white.opacity(0.9))
                             }
                         }
                         .frame(height: 200)
@@ -86,7 +86,7 @@ struct TacoDetailView: View {
                                     
                                     Text(taco.cuisine)
                                         .font(.subheadline)
-                                        .foregroundColor(.secondary)
+                                        .foregroundStyle(.secondary)
                                 }
                                 
                                 Spacer()
@@ -98,10 +98,10 @@ struct TacoDetailView: View {
                                 }) {
                                     Image(systemName: isFavorite ? "heart.fill" : "heart")
                                         .font(.title2)
-                                        .foregroundColor(isFavorite ? .red : .secondary)
+                                        .foregroundStyle(isFavorite ? .red : .secondary)
                                         .frame(width: 44, height: 44)
                                         .background(Color(.systemGray6))
-                                        .cornerRadius(12)
+                                        .clipShape(RoundedRectangle(cornerRadius: 12))
                                 }
                             }
                             
@@ -115,7 +115,7 @@ struct TacoDetailView: View {
                         }
                         .padding()
                         .background(Color(.systemBackground))
-                        .cornerRadius(16)
+                        .clipShape(RoundedRectangle(cornerRadius: 16))
                         .shadow(color: .black.opacity(0.05), radius: 10)
                         
                         // Hours Section
@@ -129,7 +129,7 @@ struct TacoDetailView: View {
                                         Text(taco.isOpenNow ? "Open Now" : "Closed")
                                             .font(.subheadline)
                                             .fontWeight(.semibold)
-                                            .foregroundColor(taco.isOpenNow ? .tacoGreen : .tacoRed)
+                                            .foregroundStyle(taco.isOpenNow ? Color.tacoGreen : Color.tacoRed)
                                         Spacer()
                                         Button(action: {
                                             withAnimation(.easeInOut(duration: 0.2)) {
@@ -142,7 +142,7 @@ struct TacoDetailView: View {
                                                 Image(systemName: showAllHours ? "chevron.up" : "chevron.down")
                                                     .font(.caption2)
                                             }
-                                            .foregroundColor(.secondary)
+                                            .foregroundStyle(.secondary)
                                         }
                                     }
 
@@ -152,14 +152,14 @@ struct TacoDetailView: View {
                                             ForEach(Array(hours.weekdayText.enumerated()), id: \.offset) { index, dayText in
                                                 Text(dayText)
                                                     .font(.subheadline)
-                                                    .foregroundColor(index == todayIndex ? .primary : .secondary)
+                                                    .foregroundStyle(index == todayIndex ? .primary : .secondary)
                                                     .fontWeight(index == todayIndex ? .semibold : .regular)
                                             }
                                         }
                                     } else {
                                         Text("Today: \(hours.todayHours)")
                                             .font(.subheadline)
-                                            .foregroundColor(.secondary)
+                                            .foregroundStyle(.secondary)
                                     }
                                 }
                             }
@@ -180,7 +180,7 @@ struct TacoDetailView: View {
                                         .tint(.orange)
                                 }
                                 .frame(height: 150)
-                                .cornerRadius(12)
+                                .clipShape(RoundedRectangle(cornerRadius: 12))
                                 .disabled(true)
                             }
                         }
@@ -193,7 +193,7 @@ struct TacoDetailView: View {
                                         .padding(.trailing, 4)
                                     Text("Loading reviews…")
                                         .font(.subheadline)
-                                        .foregroundColor(.secondary)
+                                        .foregroundStyle(.secondary)
                                 }
                             }
                         } else if !loadedReviews.isEmpty {
@@ -247,8 +247,8 @@ struct TacoDetailView: View {
                             .frame(maxWidth: .infinity)
                             .padding()
                             .background(Color.blue)
-                            .foregroundColor(.white)
-                            .cornerRadius(Layout.radiusLarge)
+                            .foregroundStyle(.white)
+                            .clipShape(RoundedRectangle(cornerRadius: Layout.radiusLarge))
                     }
 
                     if let config = orderButtonConfig {
@@ -258,8 +258,8 @@ struct TacoDetailView: View {
                                 .frame(maxWidth: .infinity)
                                 .padding()
                                 .background(Color.tacoGreen)
-                                .foregroundColor(.white)
-                                .cornerRadius(Layout.radiusLarge)
+                                .foregroundStyle(.white)
+                                .clipShape(RoundedRectangle(cornerRadius: Layout.radiusLarge))
                         }
                         .confirmationDialog(
                             "Order from \(taco.name)",
@@ -275,11 +275,11 @@ struct TacoDetailView: View {
                     } else {
                         Text("Ordering not available")
                             .font(.subheadline)
-                            .foregroundColor(.secondary)
+                            .foregroundStyle(.secondary)
                             .frame(maxWidth: .infinity)
                             .padding()
                             .background(Color(.systemGray6))
-                            .cornerRadius(Layout.radiusLarge)
+                            .clipShape(RoundedRectangle(cornerRadius: Layout.radiusLarge))
                     }
 
                     Button(action: shareLocation) {
@@ -287,8 +287,8 @@ struct TacoDetailView: View {
                             .font(.headline)
                             .frame(width: 54, height: 54)
                             .background(Color(.systemGray5))
-                            .foregroundColor(.primary)
-                            .cornerRadius(Layout.radiusLarge)
+                            .foregroundStyle(.primary)
+                            .clipShape(RoundedRectangle(cornerRadius: Layout.radiusLarge))
                     }
                 }
                 .padding()
@@ -296,11 +296,11 @@ struct TacoDetailView: View {
             }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .topBarTrailing) {
                     Button(action: { dismiss() }) {
                         Image(systemName: "xmark.circle.fill")
                             .font(.title2)
-                            .foregroundColor(.secondary)
+                            .foregroundStyle(.secondary)
                     }
                 }
             }
@@ -368,7 +368,7 @@ struct PhotoGallery: View {
     
     var body: some View {
         TabView(selection: $selectedIndex) {
-            ForEach(Array(photos.enumerated()), id: \.offset) { index, url in
+            ForEach(Array(photos.enumerated()), id: \.element) { index, url in
                 AsyncImage(url: URL(string: url)) { phase in
                     switch phase {
                     case .success(let image):
@@ -381,7 +381,7 @@ struct PhotoGallery: View {
                             .overlay(
                                 Image(systemName: "photo")
                                     .font(.largeTitle)
-                                    .foregroundColor(.gray)
+                                    .foregroundStyle(.gray)
                             )
                     case .empty:
                         Rectangle()
@@ -408,7 +408,7 @@ struct StatBadge: View {
     var body: some View {
         HStack(spacing: 6) {
             Image(systemName: icon)
-                .foregroundColor(color)
+                .foregroundStyle(color)
             Text(value)
                 .fontWeight(.semibold)
         }
@@ -431,7 +431,7 @@ struct InfoSection<Content: View>: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding()
         .background(Color(.systemBackground))
-        .cornerRadius(16)
+        .clipShape(RoundedRectangle(cornerRadius: 16))
         .shadow(color: .black.opacity(0.05), radius: 10)
     }
 }
@@ -448,7 +448,7 @@ struct ReviewCard: View {
                     .overlay(
                         Text(String(review.authorName.prefix(1)))
                             .fontWeight(.semibold)
-                            .foregroundColor(.secondary)
+                            .foregroundStyle(.secondary)
                     )
                 
                 VStack(alignment: .leading, spacing: 2) {
@@ -460,23 +460,23 @@ struct ReviewCard: View {
                         ForEach(0..<5) { i in
                             Image(systemName: i < Int(review.rating) ? "star.fill" : "star")
                                 .font(.caption2)
-                                .foregroundColor(.orange)
+                                .foregroundStyle(.orange)
                         }
                         Text(review.relativeTime)
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundStyle(.secondary)
                     }
                 }
             }
             
             Text(review.text)
                 .font(.subheadline)
-                .foregroundColor(.secondary)
+                .foregroundStyle(.secondary)
                 .lineLimit(3)
         }
         .padding()
         .background(Color(.systemGray6))
-        .cornerRadius(12)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 }
 
@@ -491,7 +491,7 @@ struct ContactButton: View {
             HStack {
                 Image(systemName: icon)
                     .font(.title3)
-                    .foregroundColor(.blue)
+                    .foregroundStyle(.blue)
                     .frame(width: 36)
                 
                 VStack(alignment: .leading, spacing: 2) {
@@ -500,17 +500,17 @@ struct ContactButton: View {
                         .fontWeight(.semibold)
                     Text(subtitle)
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(.secondary)
                 }
                 
                 Spacer()
                 
                 Image(systemName: "chevron.right")
-                    .foregroundColor(.secondary)
+                    .foregroundStyle(.secondary)
             }
             .padding()
             .background(Color(.systemGray6))
-            .cornerRadius(12)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
         }
         .buttonStyle(.plain)
     }

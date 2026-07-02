@@ -34,7 +34,7 @@ struct TacoListItemView: View {
                     }
                 }
                 .frame(width: 60, height: 60)
-                .cornerRadius(Layout.radiusMedium)
+                .clipShape(RoundedRectangle(cornerRadius: Layout.radiusMedium))
                 .clipped()
                 .highPriorityGesture(
                     TapGesture().onEnded {
@@ -44,7 +44,7 @@ struct TacoListItemView: View {
             } else {
                 PlaceholderImage(name: taco.name)
                     .frame(width: 60, height: 60)
-                    .cornerRadius(Layout.radiusMedium)
+                    .clipShape(RoundedRectangle(cornerRadius: Layout.radiusMedium))
             }
             
             // Info
@@ -66,17 +66,17 @@ struct TacoListItemView: View {
                     Text(taco.priceString)
                         .font(.caption)
                         .fontWeight(.semibold)
-                        .foregroundColor(.tacoPriceTeal)
+                        .foregroundStyle(Color.tacoPriceTeal)
                     
                     Text(taco.cuisine)
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(.secondary)
                         .lineLimit(1)
                 }
                 
                 Text(taco.address)
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundStyle(.secondary)
                     .lineLimit(1)
             }
             
@@ -90,7 +90,7 @@ struct TacoListItemView: View {
                 
                 Button(action: onFavoriteToggle) {
                     Image(systemName: isFavorite ? "heart.fill" : "heart")
-                        .foregroundColor(isFavorite ? .red : .gray)
+                        .foregroundStyle(isFavorite ? .red : .gray)
                         .font(.title3)
                 }
                 .buttonStyle(.plain)
@@ -127,7 +127,7 @@ struct PlaceholderImage: View {
                         Text(initial)
                             .font(.title2)
                             .fontWeight(.bold)
-                            .foregroundColor(.white)
+                            .foregroundStyle(.white)
                     )
             )
     }
@@ -148,7 +148,7 @@ struct EmptyStateView: View {
             } else {
                 Image(systemName: icon)
                     .font(.system(size: 60))
-                    .foregroundColor(.secondary)
+                    .foregroundStyle(.secondary)
             }
             
             Text(title)
@@ -157,7 +157,7 @@ struct EmptyStateView: View {
             
             Text(subtitle)
                 .font(.body)
-                .foregroundColor(.secondary)
+                .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 40)
             
@@ -185,12 +185,12 @@ struct FloatingPhotoCarousel: View {
                 Text(taco.name)
                     .font(.headline)
                     .fontWeight(.semibold)
-                    .foregroundColor(.white)
+                    .foregroundStyle(.white)
                     .shadow(radius: 4)
 
                 // Photo carousel
                 TabView(selection: $selectedIndex) {
-                    ForEach(Array(taco.photos.enumerated()), id: \.offset) { index, url in
+                    ForEach(Array(taco.photos.enumerated()), id: \.element) { index, url in
                         AsyncImage(url: URL(string: url)) { phase in
                             switch phase {
                             case .success(let image):
@@ -205,7 +205,7 @@ struct FloatingPhotoCarousel: View {
                                     .overlay(
                                         Image(systemName: "photo")
                                             .font(.largeTitle)
-                                            .foregroundColor(.gray)
+                                            .foregroundStyle(.gray)
                                     )
                             case .empty:
                                 Rectangle()
@@ -228,7 +228,7 @@ struct FloatingPhotoCarousel: View {
                 if taco.photos.count > 1 {
                     Text("\(selectedIndex + 1) of \(taco.photos.count)")
                         .font(.caption)
-                        .foregroundColor(.white.opacity(0.8))
+                        .foregroundStyle(.white.opacity(0.8))
                 }
             }
             .transition(.opacity.combined(with: .scale(scale: 0.9)))

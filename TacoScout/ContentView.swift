@@ -73,11 +73,11 @@ struct ContentView: View {
                     HStack(spacing: 12) {
                         Image(systemName: "location.slash")
                             .font(.system(size: 16, weight: .semibold))
-                            .foregroundColor(.white)
+                            .foregroundStyle(.white)
                         Text("Location access needed to find nearby tacos")
                             .font(.subheadline)
                             .fontWeight(.medium)
-                            .foregroundColor(.white)
+                            .foregroundStyle(.white)
                         Spacer()
                         Button {
                             if let url = URL(string: UIApplication.openSettingsURLString) {
@@ -87,11 +87,11 @@ struct ContentView: View {
                             Text("Open Settings")
                                 .font(.subheadline)
                                 .fontWeight(.semibold)
-                                .foregroundColor(.white)
+                                .foregroundStyle(.white)
                                 .padding(.horizontal, 12)
                                 .padding(.vertical, 6)
                                 .background(Color.white.opacity(0.2))
-                                .cornerRadius(8)
+                                .clipShape(RoundedRectangle(cornerRadius: 8))
                         }
                         Button {
                             withAnimation(.easeInOut) {
@@ -100,7 +100,7 @@ struct ContentView: View {
                         } label: {
                             Image(systemName: "xmark")
                                 .font(.system(size: 14, weight: .semibold))
-                                .foregroundColor(.white.opacity(0.8))
+                                .foregroundStyle(.white.opacity(0.8))
                         }
                     }
                     .padding(.horizontal, 16)
@@ -230,7 +230,7 @@ struct ContentView: View {
             Button(action: mapZoomController.zoomIn) {
                 Image(systemName: "plus")
                     .font(.system(size: 16, weight: .semibold))
-                    .foregroundColor(.white)
+                    .foregroundStyle(.white)
                     .frame(width: 44, height: 44)
                     .background(Color.iconGrey)
                     .clipShape(Circle())
@@ -239,7 +239,7 @@ struct ContentView: View {
             Button(action: mapZoomController.zoomOut) {
                 Image(systemName: "minus")
                     .font(.system(size: 16, weight: .semibold))
-                    .foregroundColor(.white)
+                    .foregroundStyle(.white)
                     .frame(width: 44, height: 44)
                     .background(Color.iconGrey)
                     .clipShape(Circle())
@@ -495,11 +495,11 @@ struct TopControlsBar: View {
                         .font(.system(size: 16))
                     Text("\(tacoCount) taco spot\(tacoCount == 1 ? "" : "s") nearby!")
                         .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(.white.opacity(0.9))
+                        .foregroundStyle(.white.opacity(0.9))
                     Spacer()
                     Image(systemName: "magnifyingglass")
                         .font(.system(size: 13, weight: .semibold))
-                        .foregroundColor(.white.opacity(0.7))
+                        .foregroundStyle(.white.opacity(0.7))
                 }
                 .padding(.horizontal, 14)
                 .padding(.vertical, 10)
@@ -517,7 +517,7 @@ struct TopControlsBar: View {
                         Text("\(activeFilterCount)")
                             .font(.caption2)
                             .fontWeight(.bold)
-                            .foregroundColor(.white)
+                            .foregroundStyle(.white)
                             .frame(width: 18, height: 18)
                             .background(Color.tacoRed, in: Circle())
                             .offset(x: 4, y: -4)
@@ -537,7 +537,7 @@ struct ControlButton: View {
         Button(action: action) {
             Image(systemName: icon)
                 .font(.system(size: 16, weight: .semibold))
-                .foregroundColor(.white)
+                .foregroundStyle(.white)
                 .padding(12)
                 .background(color)
                 .clipShape(Circle())
@@ -585,7 +585,7 @@ struct LoadingOverlay: View {
 
                 Text(status.message)
                     .font(.headline)
-                    .foregroundColor(.primary)
+                    .foregroundStyle(.primary)
                     .contentTransition(.numericText())
                     .animation(.easeInOut(duration: 0.3), value: status.message)
 
@@ -611,7 +611,7 @@ struct OpenBadge: View {
         Text("OPEN")
             .font(.caption2)
             .fontWeight(.bold)
-            .foregroundColor(.white)
+            .foregroundStyle(.white)
             .padding(.horizontal, 6)
             .padding(.vertical, 2)
             .background(Color.tacoGreen, in: Capsule())
@@ -625,7 +625,7 @@ struct RatingBadge: View {
         HStack(spacing: 2) {
             Image(systemName: "star.fill")
                 .font(.caption2)
-                .foregroundColor(.orange)
+                .foregroundStyle(.orange)
             Text(String(format: "%.1f", rating))
                 .font(.caption)
                 .fontWeight(.semibold)
@@ -637,7 +637,7 @@ struct PhotoPreviewRow: View {
     let photos: [String]
     
     var body: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
+        ScrollView(.horizontal) {
             HStack(spacing: 8) {
                 ForEach(photos.prefix(4), id: \.self) { url in
                     AsyncImage(url: URL(string: url)) { phase in
@@ -651,7 +651,7 @@ struct PhotoPreviewRow: View {
                                 .fill(Color(.systemGray5))
                                 .overlay(
                                     Image(systemName: "photo")
-                                        .foregroundColor(.gray)
+                                        .foregroundStyle(.gray)
                                 )
                         case .empty:
                             Rectangle()
@@ -663,11 +663,12 @@ struct PhotoPreviewRow: View {
                         }
                     }
                     .frame(width: 70, height: 70)
-                    .cornerRadius(Layout.radiusMedium)
+                    .clipShape(RoundedRectangle(cornerRadius: Layout.radiusMedium))
                     .clipped()
                 }
             }
         }
+        .scrollIndicators(.hidden)
     }
 }
 
@@ -707,7 +708,7 @@ struct SearchOverlayView: View {
                 HStack(spacing: 10) {
                     Image(systemName: "magnifyingglass")
                         .font(.system(size: 18, weight: .medium))
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(.secondary)
 
                     TextField("Find your next taco fix...", text: $searchText)
                         .font(.system(size: 18))
@@ -721,7 +722,7 @@ struct SearchOverlayView: View {
                         } label: {
                             Image(systemName: "xmark.circle.fill")
                                 .font(.system(size: 18))
-                                .foregroundColor(.secondary)
+                                .foregroundStyle(.secondary)
                         }
                         .buttonStyle(.plain)
                     }
@@ -730,12 +731,12 @@ struct SearchOverlayView: View {
                         onDismiss()
                     }
                     .font(.system(size: 16, weight: .medium))
-                    .foregroundColor(.tacoOrange)
+                    .foregroundStyle(Color.tacoOrange)
                 }
                 .padding(.horizontal, 16)
                 .padding(.vertical, 12)
                 .background(Color(.secondarySystemBackground))
-                .cornerRadius(Layout.radiusLarge)
+                .clipShape(RoundedRectangle(cornerRadius: Layout.radiusLarge))
                 .padding(.horizontal, Layout.paddingContent)
                 .padding(.top, Layout.topControlsHeight)
 
@@ -747,10 +748,10 @@ struct SearchOverlayView: View {
                             .font(.system(size: 40))
                         Text("Search by name or neighborhood")
                             .font(.subheadline)
-                            .foregroundColor(.secondary)
+                            .foregroundStyle(.secondary)
                         Text("Searches all spots within your \(searchRadiusLabel) search radius, ignoring active filters")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundStyle(.secondary)
                             .multilineTextAlignment(.center)
                             .padding(.horizontal, 32)
                     }
@@ -759,10 +760,10 @@ struct SearchOverlayView: View {
                     VStack(spacing: 8) {
                         Image(systemName: "magnifyingglass")
                             .font(.system(size: 32))
-                            .foregroundColor(.secondary)
+                            .foregroundStyle(.secondary)
                         Text("No results for \"\(searchText)\"")
                             .font(.subheadline)
-                            .foregroundColor(.secondary)
+                            .foregroundStyle(.secondary)
                     }
                     .padding(.top, 60)
                 } else {
@@ -786,7 +787,7 @@ struct SearchOverlayView: View {
                         }
                         .padding(.vertical, 8)
                         .background(Color(.secondarySystemBackground))
-                        .cornerRadius(Layout.radiusLarge)
+                        .clipShape(RoundedRectangle(cornerRadius: Layout.radiusLarge))
                         .padding(.horizontal, Layout.paddingContent)
                         .padding(.top, 8)
                     }
@@ -831,7 +832,7 @@ struct SearchResultRow: View {
                 }
             }
             .frame(width: 44, height: 44)
-            .cornerRadius(8)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
             .clipped()
 
             VStack(alignment: .leading, spacing: 2) {
@@ -849,11 +850,11 @@ struct SearchResultRow: View {
                     RatingBadge(rating: taco.rating)
                     Text(taco.priceString)
                         .font(.caption2)
-                        .foregroundColor(.tacoPriceTeal)
+                        .foregroundStyle(Color.tacoPriceTeal)
                         .fontWeight(.semibold)
                     Text(taco.cuisine)
                         .font(.caption2)
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(.secondary)
                         .lineLimit(1)
                 }
             }
@@ -863,7 +864,7 @@ struct SearchResultRow: View {
             Text("\(String(format: "%.1f", distance)) \(distanceUnit.abbreviation)")
                 .font(.caption)
                 .fontWeight(.medium)
-                .foregroundColor(.secondary)
+                .foregroundStyle(.secondary)
         }
         .padding(.horizontal, Layout.paddingContent)
         .padding(.vertical, 10)
