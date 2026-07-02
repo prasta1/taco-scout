@@ -34,11 +34,11 @@ struct OnboardingView: View {
                             Text(pages[index].title)
                                 .font(.largeTitle)
                                 .fontWeight(.bold)
-                                .foregroundColor(.white)
+                                .foregroundStyle(.white)
                             
                             Text(pages[index].subtitle)
                                 .font(.title3)
-                                .foregroundColor(.white.opacity(0.9))
+                                .foregroundStyle(.white.opacity(0.9))
                                 .multilineTextAlignment(.center)
                                 .padding(.horizontal, 40)
                         }
@@ -75,8 +75,8 @@ struct OnboardingView: View {
                         .frame(maxWidth: .infinity)
                         .padding()
                         .background(Color.white)
-                        .foregroundColor(.tacoOrange)
-                        .cornerRadius(16)
+                        .foregroundStyle(Color.tacoOrange)
+                        .clipShape(RoundedRectangle(cornerRadius: 16))
                 }
                 .padding(.horizontal, 32)
                 
@@ -84,7 +84,7 @@ struct OnboardingView: View {
                 Button("Skip") {
                     completeOnboarding()
                 }
-                .foregroundColor(.white.opacity(0.8))
+                .foregroundStyle(.white.opacity(0.8))
                 .opacity(currentPage < pages.count - 1 ? 1 : 0)
                 .disabled(currentPage >= pages.count - 1)
                 

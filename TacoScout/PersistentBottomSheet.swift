@@ -460,7 +460,7 @@ struct SheetHeader: View {
             Text("\(tacoCount) nearby")
                 .font(.subheadline)
                 .fontWeight(.semibold)
-                .foregroundColor(.secondary)
+                .foregroundStyle(.secondary)
 
             Spacer()
         }
@@ -477,7 +477,7 @@ struct FilterChipsRow: View {
     @Environment(SettingsManager.self) private var settingsManager
 
     var body: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
+        ScrollView(.horizontal) {
             HStack(spacing: 8) {
                 FilterChip(
                     label: "♥ \(favoritesCount)",
@@ -544,7 +544,7 @@ struct FilterChipsRow: View {
                     } label: {
                         Image(systemName: "xmark.circle.fill")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundStyle(.secondary)
                             .padding(.horizontal, 6)
                             .padding(.vertical, 6)
                             .background(Color(.systemGray5), in: Capsule())
@@ -553,6 +553,7 @@ struct FilterChipsRow: View {
                 }
             }
         }
+        .scrollIndicators(.hidden)
     }
 }
 
@@ -569,7 +570,7 @@ struct FilterChip: View {
                 .padding(.horizontal, 10)
                 .padding(.vertical, 6)
                 .background(isActive ? Color.tacoOrange : Color(.systemGray5), in: Capsule())
-                .foregroundColor(isActive ? .white : .primary)
+                .foregroundStyle(isActive ? .white : .primary)
         }
         .buttonStyle(.plain)
     }
@@ -613,7 +614,7 @@ struct SelectedTacoSection: View {
                         }
                     }
                     .frame(width: 90, height: 90)
-                    .cornerRadius(12)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
                     .clipped()
 
                     // Info
@@ -634,16 +635,16 @@ struct SelectedTacoSection: View {
                             Text(taco.priceString)
                                 .font(.caption2)
                                 .fontWeight(.semibold)
-                                .foregroundColor(.tacoPriceTeal)
+                                .foregroundStyle(Color.tacoPriceTeal)
                             Text(taco.cuisine)
                                 .font(.caption2)
-                                .foregroundColor(.secondary)
+                                .foregroundStyle(.secondary)
                                 .lineLimit(1)
                         }
 
                         Text(taco.address)
                             .font(.caption2)
-                            .foregroundColor(.secondary)
+                            .foregroundStyle(.secondary)
                             .lineLimit(1)
                     }
 
@@ -655,7 +656,7 @@ struct SelectedTacoSection: View {
                             Image(systemName: "xmark")
                                 .font(.caption2)
                                 .fontWeight(.semibold)
-                                .foregroundColor(.secondary)
+                                .foregroundStyle(.secondary)
                                 .frame(width: 22, height: 22)
                                 .background(Color(.systemGray5))
                                 .clipShape(Circle())
@@ -665,11 +666,11 @@ struct SelectedTacoSection: View {
                         Text("\(String(format: "%.1f", distance)) \(distanceUnit.abbreviation)")
                             .font(.caption)
                             .fontWeight(.semibold)
-                            .foregroundColor(.secondary)
+                            .foregroundStyle(.secondary)
 
                         Image(systemName: "chevron.right")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundStyle(.secondary)
                     }
                 }
                 .contentShape(Rectangle())
@@ -683,20 +684,20 @@ struct SelectedTacoSection: View {
                     Button(action: onFavoriteToggle) {
                         Image(systemName: isFavorite ? "heart.fill" : "heart")
                             .font(.body)
-                            .foregroundColor(isFavorite ? .red : .secondary)
+                            .foregroundStyle(isFavorite ? .red : .secondary)
                             .frame(width: 40, height: 36)
                             .background(Color(.systemGray5))
-                            .cornerRadius(8)
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
                     }
                     .buttonStyle(.plain)
 
                     Button(action: openMaps) {
                         Image(systemName: "arrow.triangle.turn.up.right.diamond.fill")
                             .font(.body)
-                            .foregroundColor(.white)
+                            .foregroundStyle(.white)
                             .frame(width: 40, height: 36)
                             .background(Color.blue)
-                            .cornerRadius(8)
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
                     }
                     .buttonStyle(.plain)
 
@@ -710,15 +711,15 @@ struct SelectedTacoSection: View {
                         }
                         .frame(maxWidth: .infinity, minHeight: 36)
                         .background(Color.tacoGreen)
-                        .foregroundColor(.white)
-                        .cornerRadius(8)
+                        .foregroundStyle(.white)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
                     }
                     .buttonStyle(.plain)
                 }
             }
             .padding(12)
             .background(Color(.secondarySystemBackground))
-            .cornerRadius(Layout.radiusLarge)
+            .clipShape(RoundedRectangle(cornerRadius: Layout.radiusLarge))
             .padding(.horizontal, Layout.paddingContent)
             .padding(.vertical, 6)
         }

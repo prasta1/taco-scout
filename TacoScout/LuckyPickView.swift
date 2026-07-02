@@ -43,16 +43,16 @@ struct LuckyPickView: View {
                             Text(taco.priceString)
                                 .font(.subheadline)
                                 .fontWeight(.semibold)
-                                .foregroundColor(.tacoPriceTeal)
+                                .foregroundStyle(Color.tacoPriceTeal)
 
                             Text("\(String(format: "%.1f", distance)) \(settingsManager.distanceUnit.abbreviation)")
                                 .font(.subheadline)
-                                .foregroundColor(.secondary)
+                                .foregroundStyle(.secondary)
                         }
 
                         Text(taco.cuisine)
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundStyle(.secondary)
 
                         if taco.isOpenNow {
                             OpenBadge()
@@ -64,7 +64,7 @@ struct LuckyPickView: View {
             .frame(maxWidth: .infinity)
             .padding(.vertical, 32)
             .background(Color(.systemGray6))
-            .cornerRadius(Layout.radiusLarge)
+            .clipShape(RoundedRectangle(cornerRadius: Layout.radiusLarge))
 
             // Action Buttons
             if isRevealed {
@@ -83,8 +83,8 @@ struct LuckyPickView: View {
                         .frame(maxWidth: .infinity)
                         .padding()
                         .background(Color(.systemGray5))
-                        .foregroundColor(.primary)
-                        .cornerRadius(Layout.radiusLarge)
+                        .foregroundStyle(.primary)
+                        .clipShape(RoundedRectangle(cornerRadius: Layout.radiusLarge))
                     }
 
                     Button(action: {
@@ -99,8 +99,8 @@ struct LuckyPickView: View {
                         .frame(maxWidth: .infinity)
                         .padding()
                         .background(Color.tacoOrange)
-                        .foregroundColor(.white)
-                        .cornerRadius(Layout.radiusLarge)
+                        .foregroundStyle(.white)
+                        .clipShape(RoundedRectangle(cornerRadius: Layout.radiusLarge))
                     }
                 }
                 .transition(.move(edge: .bottom).combined(with: .opacity))

@@ -40,7 +40,7 @@ struct FilterView: View {
                     VStack(alignment: .leading, spacing: 12) {
                         HStack {
                             Image(systemName: "star.fill")
-                                .foregroundColor(.orange)
+                                .foregroundStyle(.orange)
                             Text(filter.minRating == 0 ? "Any" : String(format: "%.1f+", filter.minRating))
                                 .fontWeight(.semibold)
                         }
@@ -57,7 +57,7 @@ struct FilterView: View {
                     VStack(alignment: .leading, spacing: 12) {
                         HStack {
                             Image(systemName: "location.circle")
-                                .foregroundColor(.blue)
+                                .foregroundStyle(.blue)
                             Text("\(String(format: "%.1f", filter.maxDistance)) \(settingsManager.distanceUnit == .miles ? "miles" : "km")")
                                 .fontWeight(.semibold)
                         }
@@ -76,7 +76,7 @@ struct FilterView: View {
                             Text("Open Now Only")
                         } icon: {
                             Image(systemName: "clock.fill")
-                                .foregroundColor(.green)
+                                .foregroundStyle(.green)
                         }
                     }
                     .onChange(of: filter.openNowOnly) { _, _ in
@@ -92,14 +92,14 @@ struct FilterView: View {
                             Text("Reset All Filters")
                         }
                         .frame(maxWidth: .infinity)
-                        .foregroundColor(.red)
+                        .foregroundStyle(.red)
                     }
                 }
             }
             .navigationTitle("Filters")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .topBarTrailing) {
                     Button("Done") {
                         HapticManager.impact(.light)
                         dismiss()
@@ -133,8 +133,8 @@ struct PriceButton: View {
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 12)
                 .background(isSelected ? Color.tacoOrange : Color(.systemGray5))
-                .foregroundColor(isSelected ? .white : .primary)
-                .cornerRadius(Layout.radiusMedium)
+                .foregroundStyle(isSelected ? .white : .primary)
+                .clipShape(RoundedRectangle(cornerRadius: Layout.radiusMedium))
         }
         .buttonStyle(.plain)
     }
