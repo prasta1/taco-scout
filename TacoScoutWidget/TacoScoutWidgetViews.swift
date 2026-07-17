@@ -8,25 +8,25 @@ struct SmallTacoWidgetView: View {
     let entry: TacoWidgetEntry
 
     var body: some View {
-        Link(destination: URL(string: "tacoscout://lucky")!) {
-            VStack(spacing: 8) {
-                Text("🌮")
-                    .font(.system(size: 48))
-                Text("Feelin' lucky,\npunk?")
-                    .font(.caption)
-                    .fontWeight(.semibold)
-                    .multilineTextAlignment(.center)
-                    .foregroundStyle(.white)
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .containerBackground(for: .widget) {
-                LinearGradient(
-                    colors: [Color.tacoOrange, Color.tacoYellow],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-            }
+        VStack(spacing: 8) {
+            Text("🌮")
+                .font(.system(size: 48))
+            Text("Feelin' lucky,\npunk?")
+                .font(.caption)
+                .fontWeight(.semibold)
+                .multilineTextAlignment(.center)
+                .foregroundStyle(.white)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .containerBackground(for: .widget) {
+            LinearGradient(
+                colors: [Color.tacoOrange, Color.tacoYellow],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        }
+        // Link is ignored in systemSmall — widgetURL is the only tap target there
+        .widgetURL(URL(string: "tacoscout://lucky"))
     }
 }
 

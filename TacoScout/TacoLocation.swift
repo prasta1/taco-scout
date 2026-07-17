@@ -35,7 +35,9 @@ struct TacoLocation: Identifiable, Codable, Equatable {
 }
 
 struct Review: Codable, Identifiable {
-    var id: String { "\(authorName)-\(rating)" }
+    // Include a slice of the text so two reviews by the same author with the
+    // same rating don't collide (duplicate ForEach IDs are undefined behavior).
+    var id: String { "\(authorName)-\(rating)-\(text.prefix(24))" }
     let authorName: String
     let rating: Double
     let text: String

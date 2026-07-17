@@ -22,6 +22,8 @@ struct ContentView: View {
     @State private var loadingStatus: LoadingStatus = .locating
     @State private var lastSearchedLocation: CLLocationCoordinate2D?
     @State private var filteredTacos: [TacoLocation] = []
+    /// Set when the lucky deep link arrives before tacos have loaded (widget tap on cold start).
+    @State private var pendingLuckyPick = false
 
     /// Fixed location for App Store screenshot automation. Active only when the
     /// UI-test runner passes `-uiTestLocation "lat,lon"`; `nil` in normal use, so
@@ -144,7 +146,8 @@ struct ContentView: View {
             filter = settingsManager.defaultFilter()
             SoundManager.enabled = settingsManager.soundsEnabled
             checkOnboarding()
-            locationManager.requestLocation()
+            // loadTacosFromLocation() registers its location waiter *before* calling
+            // requestLocation() — don't request here first or a cached fix can win the race.
             loadTacosFromLocation()
         }
         .onChange(of: settingsManager.soundsEnabled) { _, newValue in
@@ -159,9 +162,22 @@ struct ContentView: View {
         .onChange(of: filter) { _, _ in recomputeFilteredTacos() }
         .onChange(of: locationManager.userLocation?.latitude) { _, _ in recomputeFilteredTacos() }
         .onChange(of: locationManager.userLocation?.longitude) { _, _ in recomputeFilteredTacos() }
+        // Declared after the tacos/filter onChange handlers so filteredTacos is
+        // recomputed before a pending lucky pick runs.
+        .onChange(of: loadingStatus) { _, newValue in
+            if newValue == .done && pendingLuckyPick {
+                pendingLuckyPick = false
+                pickLuckyTaco()
+            }
+        }
         .onOpenURL { url in
             if url.scheme == "tacoscout" && url.host == "lucky" {
-                pickLuckyTaco()
+                if filteredTacos.isEmpty {
+                    // Cold start from the widget: tacos haven't loaded yet — defer the pick
+                    pendingLuckyPick = true
+                } else {
+                    pickLuckyTaco()
+                }
             }
         }
     }

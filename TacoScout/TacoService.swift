@@ -25,10 +25,14 @@ struct TacoService {
         }
     }
 
+    // Main-actor confined: overlapping searches (refresh + radius change) would
+    // otherwise race this shared mutable state; Swift 6 strict concurrency rejects it.
+    @MainActor
     private static var cache: CachedSearch?
 
     // MARK: - Search via Google Places API
 
+    @MainActor
     static func searchNearbyTacos(location: CLLocationCoordinate2D, radiusMeters: Double = 50000) async -> [TacoLocation] {
         // Return cached results if the user hasn't moved far and the cache is fresh
         if let cached = cache, cached.isValid(for: location, radiusMeters: radiusMeters) {
