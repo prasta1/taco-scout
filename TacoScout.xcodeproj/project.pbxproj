@@ -19,7 +19,6 @@
 		A1000009 /* TacoDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000009 /* TacoDetailView.swift */; };
 		A100000A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A200000A /* Assets.xcassets */; };
 		A100000C /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200000C /* Utilities.swift */; };
-		A100000D /* FilterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200000D /* FilterView.swift */; };
 		A100000E /* LuckyPickView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200000E /* LuckyPickView.swift */; };
 		A100000F /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200000F /* OnboardingView.swift */; };
 		A1000010 /* PersistentBottomSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000010 /* PersistentBottomSheet.swift */; };
@@ -87,7 +86,6 @@
 		A2000009 /* TacoDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TacoDetailView.swift; sourceTree = "<group>"; };
 		A200000A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A200000C /* Utilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utilities.swift; sourceTree = "<group>"; };
-		A200000D /* FilterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterView.swift; sourceTree = "<group>"; };
 		A200000E /* LuckyPickView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LuckyPickView.swift; sourceTree = "<group>"; };
 		A200000F /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		A2000010 /* PersistentBottomSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistentBottomSheet.swift; sourceTree = "<group>"; };
@@ -171,7 +169,6 @@
 				A2000008 /* TacoListView.swift */,
 				A2000009 /* TacoDetailView.swift */,
 				A200000C /* Utilities.swift */,
-				A200000D /* FilterView.swift */,
 				A200000E /* LuckyPickView.swift */,
 				A200000F /* OnboardingView.swift */,
 				A2000010 /* PersistentBottomSheet.swift */,
@@ -367,7 +364,6 @@
 				15888DF72F34C822008D3D62 /* FavoritesManager.swift in Sources */,
 				A100000C /* Utilities.swift in Sources */,
 				A1000002 /* ContentView.swift in Sources */,
-				A100000D /* FilterView.swift in Sources */,
 				A1000003 /* LocationManager.swift in Sources */,
 				A1000004 /* TacoLocation.swift in Sources */,
 				A1000005 /* TacoService.swift in Sources */,

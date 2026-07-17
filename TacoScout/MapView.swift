@@ -5,7 +5,6 @@ import MapKit
 
 class MapZoomController: NSObject {
     var mapView: MKMapView?
-    var coordinator: MapView.Coordinator?
 
     func zoomIn() {
         guard let mapView = mapView else { return }
@@ -55,14 +54,12 @@ struct MapView: UIViewRepresentable {
         mapView.showsUserLocation = true
         // Store mapView reference in the provided controller
         zoomController?.mapView = mapView
-        zoomController?.coordinator = context.coordinator
         return mapView
     }
 
     func updateUIView(_ mapView: MKMapView, context: Context) {
         // Store mapView reference for zoom controls
         zoomController?.mapView = mapView
-        zoomController?.coordinator = context.coordinator
 
         // Tell MapKit about the visible area so centering accounts for the bottom sheet
         let newMargins = UIEdgeInsets(top: 0, left: 0, bottom: bottomInset, right: 0)

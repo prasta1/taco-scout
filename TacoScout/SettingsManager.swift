@@ -149,6 +149,19 @@ final class SettingsManager {
         HapticManager.enabled = haptics
     }
 
+    /// A FilterState seeded from the user's saved defaults, including the search radius.
+    /// Single source of truth — every "reset/sync filters" path must go through this so
+    /// the active-filter badge math (which compares against these values) stays consistent.
+    func defaultFilter() -> FilterState {
+        var filter = FilterState()
+        filter.sortBy = defaultSortOrder
+        filter.openNowOnly = defaultOpenNowOnly
+        filter.minRating = defaultMinRating
+        filter.priceFilter = defaultPriceFilter
+        filter.maxDistance = Double(searchRadius.rawValue)
+        return filter
+    }
+
     func resetFilterDefaults() {
         searchRadius = .five
         defaultSortOrder = .distance

@@ -102,6 +102,7 @@ struct ContentView: View {
                                 .font(.system(size: 14, weight: .semibold))
                                 .foregroundStyle(.white.opacity(0.8))
                         }
+                        .accessibilityLabel("Dismiss")
                     }
                     .padding(.horizontal, 16)
                     .padding(.vertical, 12)
@@ -140,11 +141,7 @@ struct ContentView: View {
             OnboardingView(isPresented: $showOnboarding)
         }
         .onAppear {
-            filter.sortBy = settingsManager.defaultSortOrder
-            filter.maxDistance = Double(settingsManager.searchRadius.rawValue)
-            filter.openNowOnly = settingsManager.defaultOpenNowOnly
-            filter.minRating = settingsManager.defaultMinRating
-            filter.priceFilter = settingsManager.defaultPriceFilter
+            filter = settingsManager.defaultFilter()
             SoundManager.enabled = settingsManager.soundsEnabled
             checkOnboarding()
             locationManager.requestLocation()
@@ -235,6 +232,7 @@ struct ContentView: View {
                     .background(Color.iconGrey)
                     .clipShape(Circle())
             }
+            .accessibilityLabel("Zoom in")
 
             Button(action: mapZoomController.zoomOut) {
                 Image(systemName: "minus")
@@ -244,6 +242,7 @@ struct ContentView: View {
                     .background(Color.iconGrey)
                     .clipShape(Circle())
             }
+            .accessibilityLabel("Zoom out")
         }
     }
 
@@ -392,13 +391,10 @@ struct ContentView: View {
     }
 
     /// Syncs client-side filters from settings defaults when the settings sheet is dismissed.
-    /// Radius changes already trigger `refetchTacos()` via `.onChange`, so this only handles
-    /// the non-API filters (sort, rating, price, open now).
+    /// Radius changes already trigger `refetchTacos()` via `.onChange`; `defaultFilter()`
+    /// re-applies the same maxDistance that onChange set, so this stays in sync.
     func syncFiltersFromSettings() {
-        filter.sortBy = settingsManager.defaultSortOrder
-        filter.openNowOnly = settingsManager.defaultOpenNowOnly
-        filter.minRating = settingsManager.defaultMinRating
-        filter.priceFilter = settingsManager.defaultPriceFilter
+        filter = settingsManager.defaultFilter()
         SoundManager.enabled = settingsManager.soundsEnabled
     }
 
@@ -487,6 +483,8 @@ struct TopControlsBar: View {
         HStack(spacing: 10) {
             // Lucky Button
             ControlButton(icon: "dice.fill", color: .tacoOrange, action: onLuckyTap)
+                .accessibilityIdentifier("lucky-pick-button")
+                .accessibilityLabel("Lucky pick")
 
             // Search bar — doubles as branding + taco count + search entry point
             Button(action: onSearchTap) {
@@ -509,9 +507,12 @@ struct TopControlsBar: View {
 
             // Location Button
             ControlButton(icon: "location.fill", color: .tacoOrange, action: onLocationTap)
+                .accessibilityLabel("Center on my location")
 
             // Settings Button
             ControlButton(icon: "gearshape.fill", color: .tacoOrange, action: onSettingsTap)
+                .accessibilityIdentifier("filter-button")
+                .accessibilityLabel("Settings")
                 .overlay(alignment: .topTrailing) {
                     if activeFilterCount > 0 {
                         Text("\(activeFilterCount)")
@@ -725,6 +726,7 @@ struct SearchOverlayView: View {
                                 .foregroundStyle(.secondary)
                         }
                         .buttonStyle(.plain)
+                        .accessibilityLabel("Clear search")
                     }
 
                     Button("Cancel") {
@@ -777,6 +779,7 @@ struct SearchOverlayView: View {
                                     searchText: searchText
                                 )
                                 .contentShape(Rectangle())
+                                .accessibilityAddTraits(.isButton)
                                 .onTapGesture { onSelect(taco) }
 
                                 if taco.id != results.last?.id {

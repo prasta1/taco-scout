@@ -9,7 +9,6 @@ private let locationLogger = Logger(subsystem: "com.tacoscout.app", category: "L
 final class LocationManager: NSObject, CLLocationManagerDelegate {
     var userLocation: CLLocationCoordinate2D?
     var authorizationStatus: CLAuthorizationStatus = .notDetermined
-    var isLoading = true
 
     @ObservationIgnored private let locationManager = CLLocationManager()
     @ObservationIgnored private var retryCount = 0
@@ -55,7 +54,6 @@ final class LocationManager: NSObject, CLLocationManagerDelegate {
         } else {
             // Denied or restricted
             locationLogger.warning("Location access denied or restricted (status: \(status.rawValue))")
-            isLoading = false
             resumeWaiters(with: .denied)
         }
     }
@@ -74,7 +72,6 @@ final class LocationManager: NSObject, CLLocationManagerDelegate {
 
         MainActor.assumeIsolated {
             self.userLocation = location.coordinate
-            self.isLoading = false
             self.resumeWaiters(with: .coordinate(location.coordinate))
             // Stop continuous updates once we have a fresh fix — saves battery
             manager.stopUpdatingLocation()
@@ -84,7 +81,6 @@ final class LocationManager: NSObject, CLLocationManagerDelegate {
     nonisolated func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
         locationLogger.error("Location error: \(error.localizedDescription)")
         MainActor.assumeIsolated {
-            self.isLoading = false
             // Only retry if we never got a location, and cap retries
             if self.userLocation == nil && self.retryCount < self.maxRetries {
                 self.retryCount += 1
@@ -109,7 +105,6 @@ final class LocationManager: NSObject, CLLocationManagerDelegate {
                 self.locationManager.startUpdatingLocation()
             } else if manager.authorizationStatus == .denied || manager.authorizationStatus == .restricted {
                 self.resumeWaiters(with: .denied)
-                self.isLoading = false
             }
         }
     }

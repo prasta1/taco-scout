@@ -103,6 +103,7 @@ struct TacoDetailView: View {
                                         .background(Color(.systemGray6))
                                         .clipShape(RoundedRectangle(cornerRadius: 12))
                                 }
+                                .accessibilityLabel(isFavorite ? "Remove from favorites" : "Add to favorites")
                             }
                             
                             // Stats Row
@@ -290,6 +291,7 @@ struct TacoDetailView: View {
                             .foregroundStyle(.primary)
                             .clipShape(RoundedRectangle(cornerRadius: Layout.radiusLarge))
                     }
+                    .accessibilityLabel("Share")
                 }
                 .padding()
                 .background(Color(.systemBackground))
@@ -302,6 +304,8 @@ struct TacoDetailView: View {
                             .font(.title2)
                             .foregroundStyle(.secondary)
                     }
+                    .accessibilityIdentifier("close-detail")
+                    .accessibilityLabel("Close")
                 }
             }
         }

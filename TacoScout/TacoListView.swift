@@ -94,6 +94,7 @@ struct TacoListItemView: View {
                         .font(.title3)
                 }
                 .buttonStyle(.plain)
+                .accessibilityLabel(isFavorite ? "Remove from favorites" : "Add to favorites")
             }
         }
         .padding(.vertical, 8)

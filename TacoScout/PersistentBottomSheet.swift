@@ -388,6 +388,8 @@ struct PersistentBottomSheet: View {
                             )
                             .padding(.horizontal, Layout.paddingContent)
                             .contentShape(Rectangle())
+                            .accessibilityIdentifier("taco-row")
+                            .accessibilityAddTraits(.isButton)
                             .onTapGesture {
                                 HapticManager.selection()
                                 selectedTaco = taco
@@ -534,11 +536,7 @@ struct FilterChipsRow: View {
                     Button {
                         HapticManager.notification(.warning)
                         withAnimation {
-                            filter = FilterState()
-                            filter.sortBy = settingsManager.defaultSortOrder
-                            filter.openNowOnly = settingsManager.defaultOpenNowOnly
-                            filter.minRating = settingsManager.defaultMinRating
-                            filter.priceFilter = settingsManager.defaultPriceFilter
+                            filter = settingsManager.defaultFilter()
                             showFavoritesOnly = false
                         }
                     } label: {
@@ -662,6 +660,7 @@ struct SelectedTacoSection: View {
                                 .clipShape(Circle())
                         }
                         .buttonStyle(.plain)
+                        .accessibilityLabel("Dismiss selection")
 
                         Text("\(String(format: "%.1f", distance)) \(distanceUnit.abbreviation)")
                             .font(.caption)
@@ -690,6 +689,7 @@ struct SelectedTacoSection: View {
                             .clipShape(RoundedRectangle(cornerRadius: 8))
                     }
                     .buttonStyle(.plain)
+                    .accessibilityLabel(isFavorite ? "Remove from favorites" : "Add to favorites")
 
                     Button(action: openMaps) {
                         Image(systemName: "arrow.triangle.turn.up.right.diamond.fill")
@@ -700,6 +700,7 @@ struct SelectedTacoSection: View {
                             .clipShape(RoundedRectangle(cornerRadius: 8))
                     }
                     .buttonStyle(.plain)
+                    .accessibilityLabel("Directions")
 
                     Button(action: openDelivery) {
                         HStack(spacing: 5) {

@@ -284,19 +284,6 @@ struct TacoService {
 
 }
 
-// MARK: - Google Places API Service
-
-// Note: The main Google Places API integration is handled in TacoService.searchNearbyTacos().
-// This class is kept for potential future use (e.g., place details, photos, etc.)
-
-class PlacesAPIService: ObservableObject {
-    static let shared = PlacesAPIService()
-
-    var isConfigured: Bool {
-        Bundle.main.infoDictionary?["GOOGLE_PLACES_API_KEY"] != nil
-    }
-}
-
 // MARK: - Google Places API (New) Response Models
 
 struct PlacesNewResponse: Codable {

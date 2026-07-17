@@ -25,43 +25,6 @@ enum HapticManager {
     }
 }
 
-// MARK: - Image Cache
-
-actor ImageCache {
-    static let shared = ImageCache()
-    private var cache: [String: Image] = [:]
-    
-    func image(for url: String) -> Image? {
-        cache[url]
-    }
-    
-    func store(_ image: Image, for url: String) {
-        cache[url] = image
-    }
-}
-
-// MARK: - Async Image Loader
-
-class ImageLoader: ObservableObject {
-    @Published var image: UIImage?
-    @Published var isLoading = false
-    
-    func load(from urlString: String) {
-        guard let url = URL(string: urlString) else { return }
-        
-        isLoading = true
-        
-        URLSession.shared.dataTask(with: url) { [weak self] data, _, _ in
-            DispatchQueue.main.async {
-                self?.isLoading = false
-                if let data = data, let uiImage = UIImage(data: data) {
-                    self?.image = uiImage
-                }
-            }
-        }.resume()
-    }
-}
-
 // MARK: - View Extensions
 
 extension View {
@@ -120,15 +83,6 @@ enum Layout {
     static let paddingContent: CGFloat = 16
     static let paddingOuter: CGFloat = 24
     static let topControlsHeight: CGFloat = 56
-}
-
-// MARK: - Collection Safe Subscript
-
-extension Collection {
-    /// Returns the element at the specified index if it exists, otherwise nil.
-    subscript(safe index: Index) -> Element? {
-        indices.contains(index) ? self[index] : nil
-    }
 }
 
 // MARK: - Animation Extensions
