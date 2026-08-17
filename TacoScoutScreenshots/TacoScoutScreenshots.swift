@@ -3,7 +3,7 @@ import XCTest
 final class TacoScoutScreenshots: XCTestCase {
 
     override func setUpWithError() throws {
-        continueAfterFailure = false
+        continueAfterFailure = true
     }
 
     @MainActor
@@ -54,7 +54,7 @@ final class TacoScoutScreenshots: XCTestCase {
             sleep(2)
             // 03 — Taco detail
             snapshot("03-TacoDetail")
-            app.buttons["Done"].tap()
+            app.swipeDown()
         }
 
         // 04 — Lucky Pick
@@ -63,7 +63,7 @@ final class TacoScoutScreenshots: XCTestCase {
             luckyPickButton.tap()
             sleep(2)
             snapshot("04-LuckyPick")
-            app.buttons["Dismiss"].firstMatch.tap()
+            app.swipeDown()
         }
 
         // 05 — Filters
