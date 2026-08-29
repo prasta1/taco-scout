@@ -145,10 +145,19 @@ struct ContentView: View {
         .onAppear {
             filter = settingsManager.defaultFilter()
             SoundManager.enabled = settingsManager.soundsEnabled
-            checkOnboarding()
-            // loadTacosFromLocation() registers its location waiter *before* calling
-            // requestLocation() — don't request here first or a cached fix can win the race.
-            loadTacosFromLocation()
+            let hasSeenOnboarding = UserDefaults.standard.bool(forKey: "hasSeenOnboarding")
+            if hasSeenOnboarding {
+                // loadTacosFromLocation() registers its location waiter *before* calling
+                // requestLocation() — don't request here first or a cached fix can win the race.
+                loadTacosFromLocation()
+            } else {
+                showOnboarding = true
+            }
+        }
+        .onChange(of: showOnboarding) { _, isShowing in
+            if !isShowing {
+                loadTacosFromLocation()
+            }
         }
         .onChange(of: settingsManager.soundsEnabled) { _, newValue in
             SoundManager.enabled = newValue
@@ -477,12 +486,7 @@ struct ContentView: View {
         luckyTaco = pick
     }
     
-    func checkOnboarding() {
-        let hasSeenOnboarding = UserDefaults.standard.bool(forKey: "hasSeenOnboarding")
-        if !hasSeenOnboarding {
-            showOnboarding = true
-        }
-    }
+
 }
 
 // MARK: - Top Controls Bar
