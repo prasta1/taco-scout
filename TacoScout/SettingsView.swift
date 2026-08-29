@@ -125,7 +125,7 @@ struct SettingsView: View {
             .alert("Unable to Send", isPresented: $showingMailError) {
                 Button("OK", role: .cancel) {}
             } message: {
-                Text("Could not open your email client. You can reach us at ruster.patrick@gmail.com")
+                Text("Could not open your email client. You can reach us at pruster@protonmail.com")
             }
         }
     }
@@ -176,7 +176,7 @@ struct SettingsView: View {
     private func openEmail(subject: String, body: String) {
         let encodedSubject = subject.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
         let encodedBody = body.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
-        let mailto = "mailto:ruster.patrick@gmail.com?subject=\(encodedSubject)&body=\(encodedBody)"
+        let mailto = "mailto:pruster@protonmail.com?subject=\(encodedSubject)&body=\(encodedBody)"
 
         if let url = URL(string: mailto) {
             UIApplication.shared.open(url) { success in
