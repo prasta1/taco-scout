@@ -123,6 +123,7 @@ struct ContentView: View {
                     userLocation: effectiveUserLocation ?? CLLocationCoordinate2D(latitude: 0, longitude: 0),
                     distanceUnit: settingsManager.distanceUnit,
                     searchRadiusLabel: settingsManager.searchRadius.label(unit: settingsManager.distanceUnit),
+                    activeFilterCount: activeFilterCount,
                     onSelect: { taco in
                         showSearchOverlay = false
                         HapticManager.selection()
@@ -131,6 +132,11 @@ struct ContentView: View {
                     },
                     onDismiss: {
                         showSearchOverlay = false
+                    },
+                    onResetFilters: {
+                        withAnimation {
+                            filter = settingsManager.defaultFilter()
+                        }
                     }
                 )
                 .transition(.opacity)
@@ -700,8 +706,10 @@ struct SearchOverlayView: View {
     let userLocation: CLLocationCoordinate2D
     let distanceUnit: DistanceUnit
     let searchRadiusLabel: String
+    let activeFilterCount: Int
     let onSelect: (TacoLocation) -> Void
     let onDismiss: () -> Void
+    let onResetFilters: () -> Void
 
     @State private var searchText = ""
     @FocusState private var isFocused: Bool
@@ -761,6 +769,29 @@ struct SearchOverlayView: View {
                 .clipShape(RoundedRectangle(cornerRadius: Layout.radiusLarge))
                 .padding(.horizontal, Layout.paddingContent)
                 .padding(.top, Layout.topControlsHeight)
+
+                // Filter reset pill — shown whenever filters are active
+                if activeFilterCount > 0 {
+                    HStack(spacing: 6) {
+                        Image(systemName: "line.3.horizontal.decrease.circle.fill")
+                            .font(.subheadline)
+                            .foregroundStyle(Color.tacoOrange)
+                        Text("\(activeFilterCount) filter\(activeFilterCount == 1 ? "" : "s") active")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                        Spacer()
+                        Button("Reset") {
+                            onResetFilters()
+                        }
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                        .foregroundStyle(Color.tacoOrange)
+                        .buttonStyle(.plain)
+                        .accessibilityLabel("Reset filters")
+                    }
+                    .padding(.horizontal, Layout.paddingContent + 4)
+                    .padding(.vertical, 6)
+                }
 
                 // Results
                 if searchText.isEmpty {
