@@ -584,6 +584,8 @@ struct SelectedTacoSection: View {
     let onDetailsTap: () -> Void
     let onDismiss: () -> Void
     var distanceUnit: DistanceUnit = .miles
+    @State private var orderApps: [DeliveryLinkHelper.DeliveryOption] = []
+    @State private var showOrderSheet = false
 
     var distance: Double {
         DistanceCalculator.distance(from: userLocation, to: taco.coordinate, unit: distanceUnit)
@@ -702,20 +704,33 @@ struct SelectedTacoSection: View {
                     .buttonStyle(.plain)
                     .accessibilityLabel("Directions")
 
-                    Button(action: openDelivery) {
-                        HStack(spacing: 5) {
-                            Image(systemName: "bag.fill")
-                                .font(.subheadline)
-                            Text("Order")
-                                .font(.subheadline)
-                                .fontWeight(.semibold)
+                    if let config = DeliveryLinkHelper.buttonConfig(for: taco) {
+                        Button(action: openDelivery) {
+                            HStack(spacing: 5) {
+                                Image(systemName: config.icon)
+                                    .font(.subheadline)
+                                Text(config.label)
+                                    .font(.subheadline)
+                                    .fontWeight(.semibold)
+                            }
+                            .frame(maxWidth: .infinity, minHeight: 36)
+                            .background(Color.tacoGreen)
+                            .foregroundStyle(.white)
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
                         }
-                        .frame(maxWidth: .infinity, minHeight: 36)
-                        .background(Color.tacoGreen)
-                        .foregroundStyle(.white)
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .buttonStyle(.plain)
+                        .confirmationDialog(
+                            "Order from \(taco.name)",
+                            isPresented: $showOrderSheet,
+                            titleVisibility: .visible
+                        ) {
+                            ForEach(orderApps, id: \.name) { option in
+                                Button(option.name) {
+                                    UIApplication.shared.open(option.bestURL)
+                                }
+                            }
+                        }
                     }
-                    .buttonStyle(.plain)
                 }
             }
             .padding(12)
@@ -736,10 +751,12 @@ struct SelectedTacoSection: View {
 
     func openDelivery() {
         HapticManager.impact(.medium)
-        DeliveryLinkHelper.openBestOption(
-            for: taco.name,
-            latitude: taco.latitude,
-            longitude: taco.longitude
-        )
+        switch DeliveryLinkHelper.order(for: taco) {
+        case .chooseApp(let apps):
+            orderApps = apps
+            showOrderSheet = true
+        case .opened:
+            break
+        }
     }
 }

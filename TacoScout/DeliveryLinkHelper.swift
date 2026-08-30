@@ -2,7 +2,7 @@ import Foundation
 import UIKit
 
 /// Builds deep links to delivery apps (DoorDash, Uber Eats, Grubhub) for a given restaurant.
-/// Falls back to web search URLs when apps aren't installed.
+/// Falls back to website or phone ordering when delivery apps aren't available.
 enum DeliveryLinkHelper {
 
     /// A delivery service with its app URL scheme and web fallback.
@@ -25,6 +25,12 @@ enum DeliveryLinkHelper {
             }
             return webURL
         }
+    }
+
+    /// What the caller must do after invoking `order(for:)`.
+    enum OrderAction {
+        case opened
+        case chooseApp([DeliveryOption])
     }
 
     /// Returns delivery options for a restaurant, ordered by preference.
@@ -57,21 +63,45 @@ enum DeliveryLinkHelper {
         ]
     }
 
-    /// Opens the first available delivery app, or falls back to web.
-    /// Returns the name of the service that was opened.
-    @discardableResult
-    static func openBestOption(for name: String, latitude: Double, longitude: Double) -> String {
-        let opts = options(for: name, latitude: latitude, longitude: longitude)
+    /// Delivery apps currently installed on this device for a given taco.
+    static func availableApps(for taco: TacoLocation) -> [DeliveryOption] {
+        options(for: taco.name, latitude: taco.latitude, longitude: taco.longitude)
+            .filter { $0.isAppInstalled }
+    }
 
-        // Prefer an installed app
-        if let installed = opts.first(where: { $0.isAppInstalled }) {
-            UIApplication.shared.open(installed.bestURL)
-            return installed.name
+    /// Label and icon for an Order button based on the tier chain.
+    /// Returns nil when no ordering path is available (no apps, no website, no phone).
+    static func buttonConfig(for taco: TacoLocation) -> (label: String, icon: String)? {
+        let apps = availableApps(for: taco)
+        if apps.count == 1 { return ("Order on \(apps[0].name)", apps[0].icon) }
+        if apps.count > 1  { return ("Order", "bag.fill") }
+        if taco.website != nil { return ("Order Online", "globe") }
+        if taco.phone != nil   { return ("Call to Order", "phone.fill") }
+        return nil
+    }
+
+    /// Runs the ordering tier chain and returns what the caller must do.
+    /// Tier 1–2: installed delivery apps (returns .chooseApp when 2+, opens directly when 1).
+    /// Tier 3: restaurant website. Tier 4: phone dialer.
+    static func order(for taco: TacoLocation) -> OrderAction {
+        let apps = availableApps(for: taco)
+
+        if apps.count > 1 {
+            return .chooseApp(apps)
         }
-
-        // No app installed — open DoorDash web as default
-        let fallback = opts[0]
-        UIApplication.shared.open(fallback.webURL)
-        return fallback.name
+        if let single = apps.first {
+            UIApplication.shared.open(single.bestURL)
+            return .opened
+        }
+        if let website = taco.website, let url = URL(string: website) {
+            UIApplication.shared.open(url)
+            return .opened
+        }
+        if let phone = taco.phone,
+           let url = URL(string: "tel:\(phone.replacingOccurrences(of: " ", with: ""))") {
+            UIApplication.shared.open(url)
+            return .opened
+        }
+        return .opened
     }
 }
