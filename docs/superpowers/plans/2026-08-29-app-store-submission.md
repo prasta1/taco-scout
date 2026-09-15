@@ -16,15 +16,15 @@
 
 These are flagged in `TODO.md` and need manual verification before submission.
 
-- [ ] **Step 1: Test feedback links in Settings**
+- [x] **Step 1: Test feedback links in Settings**
 
   On a real device (not simulator): Settings → Feedback & Ideas → tap "Report a Bug" and "Request a Feature". Verify Mail opens with pre-filled subject + body for each.
 
-- [ ] **Step 2: Test "Rate TacoScout" in Settings**
+- [x] **Step 2: Test "Rate TacoScout" in Settings**
 
   On a real device: Settings → tap "Rate TacoScout". Verify the in-app App Store review prompt appears (SKStoreReviewController). Note: this will not trigger if the device has already rated — test on a clean device or simulator if needed.
 
-- [ ] **Step 3: Log results**
+- [x] **Step 3: Log results**
 
   If either check fails, fix it before proceeding. If both pass, move to Task 2.
 
@@ -38,13 +38,13 @@ The project has two targets with separate build numbers. Both must be incremente
 
 Use Xcode's target editor (not direct file edits) to avoid corrupting the pbxproj:
 
-- [ ] **Step 1: Open TacoScout target build settings**
+- [x] **Step 1: Open TacoScout target build settings**
 
   Xcode → TacoScout target → General tab → Identity section:
   - Marketing Version: **1.24** (no change)
   - Build: change **3 → 4**
 
-- [ ] **Step 2: Open TacoScoutWidget target build settings**
+- [x] **Step 2: Open TacoScoutWidget target build settings**
 
   Xcode → TacoScoutWidget target → General tab → Identity section:
   - Build: change **2 → 3** (or match whatever Apple requires — widget build must be ≤ app build)
