@@ -388,9 +388,14 @@ struct ContentView: View {
             guard !Task.isCancelled else { return }
             if loadingStatus == .locating || loadingStatus == .searching {
                 logger.warning("⏱️ Loading watchdog fired — location/search did not resolve in time")
-                // No location at all → show the "enable location" banner.
-                // Have a location but search stalled → show the (usable) empty map.
-                loadingStatus = locationManager.userLocation == nil ? .locationDenied : .noResults
+                // Only an actual denial should show the "enable location" banner — a slow
+                // GPS fix or an unanswered system prompt isn't a denial.
+                switch locationManager.authorizationStatus {
+                case .denied, .restricted:
+                    loadingStatus = .locationDenied
+                default:
+                    loadingStatus = .noResults
+                }
             }
         }
 
