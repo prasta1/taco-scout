@@ -44,4 +44,4 @@ If this policy changes, the updated version will be posted at this URL with a ne
 ## Contact
 
 For questions about this privacy policy, contact:
-155988469+prasta1@users.noreply.github.com
+pdwerx@gmail.com
