@@ -30,6 +30,9 @@ struct TacoService {
     @MainActor
     private static var cache: CachedSearch?
 
+    /// Primary place types that carry the mexican_restaurant tag but aren't taco spots.
+    private static let excludedPrimaryTypes: Set<String> = ["night_club", "bar", "casino"]
+
     // MARK: - Search via Google Places API
 
     @MainActor
@@ -95,7 +98,7 @@ struct TacoService {
         request.setValue(apiKey, forHTTPHeaderField: "X-Goog-Api-Key")
         // Field mask — only request fields we actually use (controls billing + payload size)
         request.setValue(
-            "places.id,places.displayName,places.location,places.rating,places.priceLevel,places.shortFormattedAddress,places.types,places.photos,places.regularOpeningHours,places.internationalPhoneNumber,places.websiteUri",
+            "places.id,places.displayName,places.location,places.rating,places.priceLevel,places.shortFormattedAddress,places.types,places.primaryType,places.photos,places.regularOpeningHours,places.internationalPhoneNumber,places.websiteUri",
             forHTTPHeaderField: "X-Goog-FieldMask"
         )
 
@@ -124,13 +127,15 @@ struct TacoService {
                     let places = placesResponse.places ?? []
                     logger.debug("Google Places (New) returned \(places.count) results")
 
-                    let tacos: [TacoLocation] = places.map { place in
+                    // Google returns anything tagged mexican_restaurant, including places whose
+                    // main business is something else. Drop those by primary type.
+                    let tacos: [TacoLocation] = places.filter { !excludedPrimaryTypes.contains($0.primaryType ?? "") }.map { place in
                         TacoLocation(
                             id: place.id,
                             name: place.displayName.text,
                             latitude: place.location.latitude,
                             longitude: place.location.longitude,
-                            cuisine: place.types?.first?.replacingOccurrences(of: "_", with: " ").capitalized ?? "Mexican Restaurant",
+                            cuisine: (place.primaryType ?? place.types?.first)?.replacingOccurrences(of: "_", with: " ").capitalized ?? "Mexican Restaurant",
                             rating: place.rating ?? 4.0,
                             address: place.shortFormattedAddress ?? "",
                             priceLevel: place.priceLevelInt,
@@ -302,6 +307,7 @@ struct PlaceNewResult: Codable {
     let priceLevel: String?
     let shortFormattedAddress: String?
     let types: [String]?
+    let primaryType: String?
     let photos: [PlaceNewPhoto]?
     let regularOpeningHours: PlaceNewOpeningHours?
     let internationalPhoneNumber: String?
