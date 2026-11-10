@@ -520,21 +520,30 @@ struct TopControlsBar: View {
             // Search bar — doubles as branding + taco count + search entry point
             Button(action: onSearchTap) {
                 HStack(spacing: 8) {
-                    Text("🌮")
-                        .font(.callout)
-                    Text("\(tacoCount) taco spot\(tacoCount == 1 ? "" : "s") nearby!")
-                        .font(.subheadline.weight(.medium))
-                        .foregroundStyle(.white)
-                    Spacer()
                     Image(systemName: "magnifyingglass")
                         .font(.footnote.weight(.semibold))
                         .foregroundStyle(.white)
+                    Text("Search tacos")
+                        .font(.subheadline.weight(.medium))
+                        .foregroundStyle(.white)
+                    Spacer()
+                    // Count badge: the one high-contrast element in the pill
+                    if tacoCount > 0 {
+                        Text("\(tacoCount)")
+                            .font(.footnote.weight(.bold))
+                            .foregroundStyle(.black.opacity(0.85))
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 2)
+                            .background(.white, in: Capsule())
+                    }
                 }
                 .padding(.horizontal, 14)
                 .padding(.vertical, 10)
                 .background(Color.tacoOrange, in: Capsule())
             }
             .buttonStyle(.plain)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(tacoCount > 0 ? "Search tacos, \(tacoCount) nearby" : "Search tacos")
 
             // Location Button
             ControlButton(icon: "location.fill", color: .tacoOrange, action: onLocationTap)
