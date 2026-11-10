@@ -257,7 +257,7 @@ struct ContentView: View {
         VStack(spacing: 8) {
             Button(action: mapZoomController.zoomIn) {
                 Image(systemName: "plus")
-                    .font(.system(size: 16, weight: .semibold))
+                    .font(.callout.weight(.semibold))
                     .foregroundStyle(.white)
                     .frame(width: 44, height: 44)
                     .background(Color.iconGrey)
@@ -267,7 +267,7 @@ struct ContentView: View {
 
             Button(action: mapZoomController.zoomOut) {
                 Image(systemName: "minus")
-                    .font(.system(size: 16, weight: .semibold))
+                    .font(.callout.weight(.semibold))
                     .foregroundStyle(.white)
                     .frame(width: 44, height: 44)
                     .background(Color.iconGrey)
@@ -521,14 +521,14 @@ struct TopControlsBar: View {
             Button(action: onSearchTap) {
                 HStack(spacing: 8) {
                     Text("🌮")
-                        .font(.system(size: 16))
+                        .font(.callout)
                     Text("\(tacoCount) taco spot\(tacoCount == 1 ? "" : "s") nearby!")
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundStyle(.white.opacity(0.9))
+                        .font(.subheadline.weight(.medium))
+                        .foregroundStyle(.white)
                     Spacer()
                     Image(systemName: "magnifyingglass")
-                        .font(.system(size: 13, weight: .semibold))
-                        .foregroundStyle(.white.opacity(0.7))
+                        .font(.footnote.weight(.semibold))
+                        .foregroundStyle(.white)
                 }
                 .padding(.horizontal, 14)
                 .padding(.vertical, 10)
@@ -568,9 +568,10 @@ struct ControlButton: View {
     var body: some View {
         Button(action: action) {
             Image(systemName: icon)
-                .font(.system(size: 16, weight: .semibold))
+                .font(.callout.weight(.semibold))
                 .foregroundStyle(.white)
                 .padding(12)
+                .frame(minWidth: 44, minHeight: 44)
                 .background(color)
                 .clipShape(Circle())
         }

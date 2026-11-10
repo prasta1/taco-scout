@@ -569,6 +569,9 @@ struct FilterChip: View {
                 .padding(.vertical, 6)
                 .background(isActive ? Color.tacoOrange : Color(.systemGray5), in: Capsule())
                 .foregroundStyle(isActive ? .white : .primary)
+                // Capsule stays compact; the frame only grows the tappable area to 44pt.
+                .frame(minHeight: 44)
+                .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
     }
@@ -686,7 +689,7 @@ struct SelectedTacoSection: View {
                         Image(systemName: isFavorite ? "heart.fill" : "heart")
                             .font(.body)
                             .foregroundStyle(isFavorite ? .red : .secondary)
-                            .frame(width: 40, height: 36)
+                            .frame(minWidth: 44, minHeight: 44)
                             .background(Color(.systemGray5))
                             .clipShape(RoundedRectangle(cornerRadius: 8))
                     }
@@ -697,7 +700,7 @@ struct SelectedTacoSection: View {
                         Image(systemName: "arrow.triangle.turn.up.right.diamond.fill")
                             .font(.body)
                             .foregroundStyle(.white)
-                            .frame(width: 40, height: 36)
+                            .frame(minWidth: 44, minHeight: 44)
                             .background(Color.blue)
                             .clipShape(RoundedRectangle(cornerRadius: 8))
                     }
@@ -713,7 +716,7 @@ struct SelectedTacoSection: View {
                                     .font(.subheadline)
                                     .fontWeight(.semibold)
                             }
-                            .frame(maxWidth: .infinity, minHeight: 36)
+                            .frame(maxWidth: .infinity, minHeight: 44)
                             .background(Color.tacoGreen)
                             .foregroundStyle(.white)
                             .clipShape(RoundedRectangle(cornerRadius: 8))
